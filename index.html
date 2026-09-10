@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#14161a">
+<title>原子序練習</title>
+<style>
+  :root {
+    --bg: #14161a;
+    --card-bg: #1c1f24;
+    --key-bg: #22262c;
+    --key-bg-active: #2a2f36;
+    --text-primary: #edeef0;
+    --text-secondary: #868d96;
+    --text-faint: #565c64;
+    --accent: #5fc9c1;
+    --danger: #e2645c;
+    --border: #2a2e34;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Heiti TC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+  }
+
+  .app { width: 100%; max-width: 380px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .eyebrow {
+    font-size: 13px;
+    color: var(--text-faint);
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
+  /* ---- mode select cards ---- */
+  .mode-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s ease, border-color 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mode-card:active { background: var(--key-bg-active); }
+  .mode-card h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .mode-card p { margin: 0; font-size: 13px; color: var(--text-secondary); }
+  .infinity { color: var(--accent); font-size: 16px; }
+
+  /* ---- back button ---- */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .back-btn svg { width: 15px; height: 15px; }
+
+  .sub-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .sub-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+
+  /* ---- group grid ---- */
+  .group-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+  .group-btn {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--key-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .group-btn:active { background: var(--key-bg-active); }
+  .group-btn.wide {
+    grid-column: span 3;
+    aspect-ratio: auto;
+    padding: 13px 0;
+    font-size: 13px;
+  }
+
+  /* ---- period list ---- */
+  .period-list { display: flex; flex-direction: column; gap: 8px; }
+  .period-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--key-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 15px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .period-btn:active { background: var(--key-bg-active); }
+  .period-btn .count { color: var(--text-secondary); font-size: 12px; }
+
+  /* ---- range picker ---- */
+  .range-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 14px;
+    margin: 30px 0 34px;
+  }
+  .range-field { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .range-field label { font-size: 12px; color: var(--text-secondary); }
+  .range-input {
+    width: 84px;
+    padding: 12px 0;
+    text-align: center;
+    font-size: 22px;
+    background: var(--key-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  }
+  .range-input:focus { outline: none; border-color: var(--accent); }
+  .range-sep { color: var(--text-faint); font-size: 20px; padding-bottom: 12px; }
+
+  .btn {
+    padding: 15px 0;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s ease;
+  }
+  .btn-primary { width: 100%; background: var(--accent); color: #0c1614; }
+  .btn-primary:active { opacity: 0.85; }
+
+  /* ---- quiz screen ---- */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 28px 36px;
+    text-align: center;
+  }
+
+  .name-display {
+    font-size: 54px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: keep-all;
+  }
+
+  .reveal {
+    margin-top: 14px;
+    height: 20px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    font-size: 15px;
+    color: var(--accent);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .reveal.wrong-color { color: var(--danger); }
+  .reveal.show { opacity: 1; transform: translateY(0); }
+
+  .answer-input {
+    margin-top: 22px;
+    width: 120px;
+    padding: 10px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--border);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    font-size: 34px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text-primary);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .answer-input:focus { outline: none; border-color: var(--accent); }
+  .answer-input.correct { border-color: var(--accent); color: var(--accent); }
+  .answer-input.wrong { border-color: var(--danger); color: var(--danger); }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
+    margin-top: 26px;
+  }
+  .key {
+    padding: 16px 0;
+    background: var(--key-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, transform 0.06s ease;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .key:active { background: var(--key-bg-active); transform: scale(0.96); }
+  .key svg { width: 19px; height: 19px; }
+
+  .actions { display: flex; gap: 9px; margin-top: 18px; }
+  .btn-submit { flex: 1; background: var(--accent); color: #0c1614; }
+  .btn-submit:active { opacity: 0.85; }
+  .btn-submit.wrong-state { background: var(--danger); color: #1a0d0c; }
+  .btn-next {
+    flex: 0 0 56px;
+    background: var(--key-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-next svg { width: 18px; height: 18px; }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .stats b { color: var(--text-primary); font-weight: 600; }
+
+  @media (max-width: 360px) {
+    .name-display { font-size: 46px; }
+    .card { padding: 40px 20px 30px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Screen A: mode select -->
+  <div class="screen active" id="screenMode">
+    <div class="eyebrow">選擇練習範圍</div>
+    <div class="mode-card" id="modeGroupCard">
+      <h3>依族練習</h3>
+      <p>選擇一個族，只練習同族元素</p>
+    </div>
+    <div class="mode-card" id="modePeriodCard">
+      <h3>依週期練習</h3>
+      <p>選擇一個週期，只練習同週期元素</p>
+    </div>
+    <div class="mode-card" id="modeRangeCard">
+      <h3>自訂範圍</h3>
+      <p>自訂原子序區間，例如 5 到 30</p>
+    </div>
+    <div class="mode-card" id="modeZenCard">
+      <h3>Zen 模式 <span class="infinity">∞</span></h3>
+      <p>全部 118 個元素，沒有範圍限制</p>
+    </div>
+  </div>
+
+  <!-- Screen B1: group picker -->
+  <div class="screen" id="screenGroupPick">
+    <div class="sub-header">
+      <button class="back-btn back-to-mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回
+      </button>
+      <span class="sub-title">選擇族</span>
+      <span></span>
+    </div>
+    <div class="group-grid" id="groupGrid">
+      <button class="group-btn" data-group="1">1</button>
+      <button class="group-btn" data-group="2">2</button>
+      <button class="group-btn" data-group="3">3</button>
+      <button class="group-btn" data-group="4">4</button>
+      <button class="group-btn" data-group="5">5</button>
+      <button class="group-btn" data-group="6">6</button>
+      <button class="group-btn" data-group="7">7</button>
+      <button class="group-btn" data-group="8">8</button>
+      <button class="group-btn" data-group="9">9</button>
+      <button class="group-btn" data-group="10">10</button>
+      <button class="group-btn" data-group="11">11</button>
+      <button class="group-btn" data-group="12">12</button>
+      <button class="group-btn" data-group="13">13</button>
+      <button class="group-btn" data-group="14">14</button>
+      <button class="group-btn" data-group="15">15</button>
+      <button class="group-btn" data-group="16">16</button>
+      <button class="group-btn" data-group="17">17</button>
+      <button class="group-btn" data-group="18">18</button>
+      <button class="group-btn wide" data-group="La">鑭系</button>
+      <button class="group-btn wide" data-group="Ac">錒系</button>
+    </div>
+  </div>
+
+  <!-- Screen B2: period picker -->
+  <div class="screen" id="screenPeriodPick">
+    <div class="sub-header">
+      <button class="back-btn back-to-mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回
+      </button>
+      <span class="sub-title">選擇週期</span>
+      <span></span>
+    </div>
+    <div class="period-list" id="periodList">
+      <button class="period-btn" data-period="1">第 1 週期 <span class="count">2 個元素</span></button>
+      <button class="period-btn" data-period="2">第 2 週期 <span class="count">8 個元素</span></button>
+      <button class="period-btn" data-period="3">第 3 週期 <span class="count">8 個元素</span></button>
+      <button class="period-btn" data-period="4">第 4 週期 <span class="count">18 個元素</span></button>
+      <button class="period-btn" data-period="5">第 5 週期 <span class="count">18 個元素</span></button>
+      <button class="period-btn" data-period="6">第 6 週期 <span class="count">32 個元素</span></button>
+      <button class="period-btn" data-period="7">第 7 週期 <span class="count">32 個元素</span></button>
+    </div>
+  </div>
+
+  <!-- Screen B3: range picker -->
+  <div class="screen" id="screenRangePick">
+    <div class="sub-header">
+      <button class="back-btn back-to-mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回
+      </button>
+      <span class="sub-title">自訂範圍</span>
+      <span></span>
+    </div>
+    <div class="range-row">
+      <div class="range-field">
+        <label>從</label>
+        <input class="range-input" id="rangeFrom" type="number" inputmode="numeric" placeholder="1" min="1" max="118">
+      </div>
+      <div class="range-sep">–</div>
+      <div class="range-field">
+        <label>到</label>
+        <input class="range-input" id="rangeTo" type="number" inputmode="numeric" placeholder="118" min="1" max="118">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="rangeStartBtn">開始練習</button>
+  </div>
+
+  <!-- Screen C: quiz -->
+  <div class="screen" id="screenQuiz">
+    <div class="sub-header">
+      <button class="back-btn back-to-mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回
+      </button>
+      <span class="sub-title" id="quizLabel"></span>
+      <span></span>
+    </div>
+    <div class="card">
+      <div class="name-display" id="nameDisplay">—</div>
+      <div class="reveal" id="reveal"></div>
+      <input class="answer-input" id="answerInput" type="text" inputmode="none" readonly autocomplete="off" placeholder="?" />
+
+      <div class="keypad" id="keypad">
+        <button class="key" data-num="1">1</button>
+        <button class="key" data-num="2">2</button>
+        <button class="key" data-num="3">3</button>
+        <button class="key" data-num="4">4</button>
+        <button class="key" data-num="5">5</button>
+        <button class="key" data-num="6">6</button>
+        <button class="key" data-num="7">7</button>
+        <button class="key" data-num="8">8</button>
+        <button class="key" data-num="9">9</button>
+        <button class="key" id="resetKey" aria-label="重來">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <button class="key" data-num="0">0</button>
+        <button class="key" id="deleteKey" aria-label="刪除">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+        </button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-submit" id="submitBtn">送出</button>
+        <button class="btn btn-next" id="nextBtn" aria-label="下一個">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div>已作答 <b id="statAnswered">0</b></div>
+      <div>答對 <b id="statCorrect">0</b></div>
+      <div>正確率 <b id="statAccuracy">—</b></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // [name, atomic number, group]  group: 1-18, or 'La' (lanthanide) / 'Ac' (actinide)
+  const ELEMENTS = [
+    ['氫',1,1],['氦',2,18],
+    ['鋰',3,1],['鈹',4,2],['硼',5,13],['碳',6,14],['氮',7,15],['氧',8,16],['氟',9,17],['氖',10,18],
+    ['鈉',11,1],['鎂',12,2],['鋁',13,13],['矽',14,14],['磷',15,15],['硫',16,16],['氯',17,17],['氬',18,18],
+    ['鉀',19,1],['鈣',20,2],['鈧',21,3],['鈦',22,4],['釩',23,5],['鉻',24,6],['錳',25,7],['鐵',26,8],['鈷',27,9],['鎳',28,10],['銅',29,11],['鋅',30,12],['鎵',31,13],['鍺',32,14],['砷',33,15],['硒',34,16],['溴',35,17],['氪',36,18],
+    ['銣',37,1],['鍶',38,2],['釔',39,3],['鋯',40,4],['鈮',41,5],['鉬',42,6],['鎝',43,7],['釕',44,8],['銠',45,9],['鈀',46,10],['銀',47,11],['鎘',48,12],['銦',49,13],['錫',50,14],['銻',51,15],['碲',52,16],['碘',53,17],['氙',54,18],
+    ['銫',55,1],['鋇',56,2],
+    ['鑭',57,'La'],['鈰',58,'La'],['鐠',59,'La'],['釹',60,'La'],['鉕',61,'La'],['釤',62,'La'],['銪',63,'La'],['釓',64,'La'],['鋱',65,'La'],['鏑',66,'La'],['鈥',67,'La'],['鉺',68,'La'],['銩',69,'La'],['鐿',70,'La'],['鎦',71,'La'],
+    ['鉿',72,4],['鉭',73,5],['鎢',74,6],['錸',75,7],['鋨',76,8],['銥',77,9],['鉑',78,10],['金',79,11],['汞',80,12],['鉈',81,13],['鉛',82,14],['鉍',83,15],['釙',84,16],['砈',85,17],['氡',86,18],
+    ['鍅',87,1],['鐳',88,2],
+    ['錒',89,'Ac'],['釷',90,'Ac'],['鏷',91,'Ac'],['鈾',92,'Ac'],['錼',93,'Ac'],['鈽',94,'Ac'],['鋂',95,'Ac'],['鋦',96,'Ac'],['鉳',97,'Ac'],['鉲',98,'Ac'],['鑀',99,'Ac'],['鐨',100,'Ac'],['鍆',101,'Ac'],['鍩',102,'Ac'],['鐒',103,'Ac'],
+    ['鑪',104,4],['𨧀',105,5],['𨭎',106,6],['𨨏',107,7],['𨭆',108,8],['鿏',109,9],['鐽',110,10],['錀',111,11],['鎶',112,12],['鉨',113,13],['鈇',114,14],['鏌',115,15],['鉝',116,16],['鿬',117,17],['鿫',118,18]
+  ];
+
+  let currentPool = ELEMENTS;
+  let currentZ = null;
+  let answered = false;
+  let advanceTimer = null;
+  let lastIndex = -1;
+  const stats = { answered: 0, correct: 0 };
+
+  const nameDisplay = document.getElementById('nameDisplay');
+  const reveal = document.getElementById('reveal');
+  const answerInput = document.getElementById('answerInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const resetKey = document.getElementById('resetKey');
+  const deleteKey = document.getElementById('deleteKey');
+  const keypad = document.getElementById('keypad');
+  const statAnswered = document.getElementById('statAnswered');
+  const statCorrect = document.getElementById('statCorrect');
+  const statAccuracy = document.getElementById('statAccuracy');
+  const quizLabel = document.getElementById('quizLabel');
+
+  function computePeriod(z) {
+    if (z <= 2) return 1;
+    if (z <= 10) return 2;
+    if (z <= 18) return 3;
+    if (z <= 36) return 4;
+    if (z <= 54) return 5;
+    if (z <= 86) return 6;
+    return 7;
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function pickElement() {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * currentPool.length);
+    } while (idx === lastIndex && currentPool.length > 1);
+    lastIndex = idx;
+    return currentPool[idx];
+  }
+
+  function clearFeedback() {
+    reveal.classList.remove('show', 'wrong-color');
+    reveal.textContent = '';
+    answerInput.classList.remove('correct', 'wrong');
+    submitBtn.classList.remove('wrong-state');
+    submitBtn.textContent = '送出';
+  }
+
+  function nextQuestion() {
+    if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+    const [name, z] = pickElement();
+    currentZ = z;
+    nameDisplay.textContent = name;
+    answerInput.value = '';
+    clearFeedback();
+    answered = false;
+    answerInput.focus();
+  }
+
+  function resetCurrent() {
+    if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+    answerInput.value = '';
+    clearFeedback();
+    answered = false;
+    answerInput.focus();
+  }
+
+  function updateStats() {
+    statAnswered.textContent = stats.answered;
+    statCorrect.textContent = stats.correct;
+    statAccuracy.textContent = stats.answered ? Math.round(stats.correct / stats.answered * 100) + '%' : '—';
+  }
+
+  function submitAnswer() {
+    if (answered) return;
+    const raw = answerInput.value.trim();
+    if (!raw) {
+      answerInput.classList.add('wrong');
+      setTimeout(() => answerInput.classList.remove('wrong'), 300);
+      return;
+    }
+
+    const guess = parseInt(raw, 10);
+    answered = true;
+    stats.answered++;
+
+    if (guess === currentZ) {
+      stats.correct++;
+      answerInput.classList.add('correct');
+      reveal.textContent = '✓ 原子序 ' + currentZ;
+      reveal.classList.add('show');
+      submitBtn.textContent = '✓ 正確';
+      advanceTimer = setTimeout(nextQuestion, 800);
+    } else {
+      answerInput.classList.add('wrong');
+      reveal.textContent = '✗ 正確答案 ' + currentZ;
+      reveal.classList.add('show', 'wrong-color');
+      submitBtn.classList.add('wrong-state');
+      submitBtn.textContent = '再試一次';
+    }
+
+    updateStats();
+  }
+
+  function startSession(pool, label) {
+    currentPool = pool;
+    quizLabel.textContent = label;
+    stats.answered = 0;
+    stats.correct = 0;
+    updateStats();
+    lastIndex = -1;
+    showScreen('screenQuiz');
+    nextQuestion();
+  }
+
+  // ---- mode select ----
+  document.getElementById('modeGroupCard').addEventListener('click', () => showScreen('screenGroupPick'));
+  document.getElementById('modePeriodCard').addEventListener('click', () => showScreen('screenPeriodPick'));
+  document.getElementById('modeRangeCard').addEventListener('click', () => showScreen('screenRangePick'));
+  document.getElementById('modeZenCard').addEventListener('click', () => startSession(ELEMENTS, 'Zen 模式 ∞'));
+
+  document.querySelectorAll('.back-to-mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+      showScreen('screenMode');
+    });
+  });
+
+  // ---- group picker ----
+  document.getElementById('groupGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.group-btn');
+    if (!btn) return;
+    const g = btn.dataset.group;
+    const pool = ELEMENTS.filter(el => String(el[2]) === g);
+    const label = g === 'La' ? '鑭系' : g === 'Ac' ? '錒系' : ('第 ' + g + ' 族');
+    startSession(pool, label);
+  });
+
+  // ---- period picker ----
+  document.getElementById('periodList').addEventListener('click', (e) => {
+    const btn = e.target.closest('.period-btn');
+    if (!btn) return;
+    const p = parseInt(btn.dataset.period, 10);
+    const pool = ELEMENTS.filter(el => computePeriod(el[1]) === p);
+    startSession(pool, '第 ' + p + ' 週期');
+  });
+
+  // ---- range picker ----
+  document.getElementById('rangeStartBtn').addEventListener('click', () => {
+    const fromField = document.getElementById('rangeFrom');
+    const toField = document.getElementById('rangeTo');
+    let from = parseInt(fromField.value || fromField.placeholder, 10);
+    let to = parseInt(toField.value || toField.placeholder, 10);
+    from = Math.max(1, Math.min(118, from));
+    to = Math.max(1, Math.min(118, to));
+    if (from > to) { const t = from; from = to; to = t; }
+    const pool = ELEMENTS.filter(el => el[1] >= from && el[1] <= to);
+    startSession(pool, '範圍 ' + from + '–' + to);
+  });
+
+  // ---- quiz interactions ----
+  keypad.addEventListener('click', (e) => {
+    const key = e.target.closest('.key');
+    if (!key || answered) return;
+    if (key.dataset.num !== undefined) {
+      answerInput.value += key.dataset.num;
+    }
+  });
+
+  deleteKey.addEventListener('click', () => {
+    if (answered) return;
+    answerInput.value = answerInput.value.slice(0, -1);
+  });
+
+  resetKey.addEventListener('click', resetCurrent);
+  submitBtn.addEventListener('click', submitAnswer);
+  nextBtn.addEventListener('click', nextQuestion);
+
+  document.addEventListener('keydown', (e) => {
+    const quizActive = document.getElementById('screenQuiz').classList.contains('active');
+    if (!quizActive) return;
+    if (answered) {
+      if (e.key === 'Enter') nextQuestion();
+      return;
+    }
+    if (e.key >= '0' && e.key <= '9') {
+      answerInput.value += e.key;
+    } else if (e.key === 'Backspace') {
+      answerInput.value = answerInput.value.slice(0, -1);
+    } else if (e.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+</script>
+</body>
+</html>
