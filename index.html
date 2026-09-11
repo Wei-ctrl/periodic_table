@@ -97,11 +97,11 @@
   /* ---- group grid ---- */
   .group-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
   }
   .group-btn {
-    aspect-ratio: 1;
+    aspect-ratio: 1.6;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -119,7 +119,7 @@
   }
   .group-btn:active { background: var(--line-strong); color: var(--bg); }
   .group-btn.wide {
-    grid-column: span 3;
+    grid-column: span 2;
     aspect-ratio: auto;
     padding: 13px 0;
     font-size: 13px;
@@ -365,24 +365,22 @@
       <span></span>
     </div>
     <div class="group-grid" id="groupGrid">
-      <button class="group-btn" data-group="1">1</button>
-      <button class="group-btn" data-group="2">2</button>
-      <button class="group-btn" data-group="3">3</button>
-      <button class="group-btn" data-group="4">4</button>
-      <button class="group-btn" data-group="5">5</button>
-      <button class="group-btn" data-group="6">6</button>
-      <button class="group-btn" data-group="7">7</button>
-      <button class="group-btn" data-group="8">8</button>
-      <button class="group-btn" data-group="9">9</button>
-      <button class="group-btn" data-group="10">10</button>
-      <button class="group-btn" data-group="11">11</button>
-      <button class="group-btn" data-group="12">12</button>
-      <button class="group-btn" data-group="13">13</button>
-      <button class="group-btn" data-group="14">14</button>
-      <button class="group-btn" data-group="15">15</button>
-      <button class="group-btn" data-group="16">16</button>
-      <button class="group-btn" data-group="17">17</button>
-      <button class="group-btn" data-group="18">18</button>
+      <button class="group-btn" data-group="1A">1A</button>
+      <button class="group-btn" data-group="2A">2A</button>
+      <button class="group-btn" data-group="3B">3B</button>
+      <button class="group-btn" data-group="4B">4B</button>
+      <button class="group-btn" data-group="5B">5B</button>
+      <button class="group-btn" data-group="6B">6B</button>
+      <button class="group-btn" data-group="7B">7B</button>
+      <button class="group-btn" data-group="8B">8B</button>
+      <button class="group-btn" data-group="1B">1B</button>
+      <button class="group-btn" data-group="2B">2B</button>
+      <button class="group-btn" data-group="3A">3A</button>
+      <button class="group-btn" data-group="4A">4A</button>
+      <button class="group-btn" data-group="5A">5A</button>
+      <button class="group-btn" data-group="6A">6A</button>
+      <button class="group-btn" data-group="7A">7A</button>
+      <button class="group-btn" data-group="8A">8A</button>
       <button class="group-btn wide" data-group="La">鑭系</button>
       <button class="group-btn wide" data-group="Ac">錒系</button>
     </div>
@@ -664,14 +662,22 @@
   });
 
   // ---- group picker ----
+  // CAS-style group label -> IUPAC group numbers (8B spans groups 8-10)
+  const CAS_GROUPS = {
+    '1A': [1], '2A': [2],
+    '3B': [3], '4B': [4], '5B': [5], '6B': [6], '7B': [7], '8B': [8, 9, 10],
+    '1B': [11], '2B': [12],
+    '3A': [13], '4A': [14], '5A': [15], '6A': [16], '7A': [17], '8A': [18]
+  };
+
   document.getElementById('groupGrid').addEventListener('click', (e) => {
     const btn = e.target.closest('.group-btn');
     if (!btn) return;
     const g = btn.dataset.group;
-    // 鑭/錒 sit in group 3 but also head their own series
+    // 鑭/錒 sit in group 3B but also head their own series
     const pool = g === 'La' ? ELEMENTS.filter(el => el[1] >= 57 && el[1] <= 71)
                : g === 'Ac' ? ELEMENTS.filter(el => el[1] >= 89 && el[1] <= 103)
-               : ELEMENTS.filter(el => String(el[2]) === g);
+               : ELEMENTS.filter(el => CAS_GROUPS[g].includes(el[2]));
     const label = g === 'La' ? '鑭系' : g === 'Ac' ? '錒系' : ('第 ' + g + ' 族');
     startSession(pool, label);
   });

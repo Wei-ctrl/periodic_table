@@ -8,7 +8,7 @@ A single-page web app for drilling atomic numbers against the full 118-element p
 
 Pick a practice scope, then answer with the atomic number for each element shown:
 
-- **依族練習** — drill one group/column at a time (Groups 1–18, plus 鑭系/Lanthanides and 錒系/Actinides)
+- **依族練習** — drill one group/column at a time (CAS-style groups 1A–8A and 1B–8B, with 8B covering IUPAC groups 8–10, plus 鑭系/Lanthanides and 錒系/Actinides)
 - **依週期練習** — drill one period/row at a time (Periods 1–7)
 - **自訂範圍** — set a custom atomic-number range (e.g. 5–30)
 - **Zen 模式 ∞** — all 118 elements, unfiltered
