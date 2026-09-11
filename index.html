@@ -191,16 +191,42 @@
     text-align: center;
   }
 
+  .name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: 68px;
+  }
   .name-display {
     font-size: 54px;
     font-weight: 500;
     letter-spacing: 0.02em;
-    min-height: 68px;
     display: flex;
     align-items: center;
     justify-content: center;
     word-break: keep-all;
   }
+  .speak-btn {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.08s ease, color 0.08s ease;
+  }
+  .speak-btn svg { width: 20px; height: 20px; }
+  .speak-btn:active,
+  .speak-btn.speaking { background: var(--line-strong); color: var(--bg); }
+  .speak-btn[hidden] { display: none; }
 
   .reveal {
     margin-top: 14px;
@@ -418,7 +444,12 @@
       <span></span>
     </div>
     <div class="card">
-      <div class="name-display" id="nameDisplay">—</div>
+      <div class="name-row">
+        <div class="name-display" id="nameDisplay">—</div>
+        <button class="speak-btn" id="speakBtn" aria-label="發音" title="發音">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        </button>
+      </div>
       <div class="reveal" id="reveal"></div>
       <input class="answer-input" id="answerInput" type="text" inputmode="none" readonly autocomplete="off" placeholder="?" />
 
@@ -493,6 +524,32 @@
   const statCorrect = document.getElementById('statCorrect');
   const statAccuracy = document.getElementById('statAccuracy');
   const quizLabel = document.getElementById('quizLabel');
+  const speakBtn = document.getElementById('speakBtn');
+
+  // ---- pronunciation (Web Speech API) ----
+  const synth = window.speechSynthesis;
+  if (!synth) speakBtn.hidden = true;
+
+  function pickVoice() {
+    const voices = synth.getVoices();
+    return voices.find(v => /^zh[-_]TW/i.test(v.lang))
+        || voices.find(v => /^zh[-_]HK/i.test(v.lang))
+        || voices.find(v => /^zh/i.test(v.lang))
+        || null;
+  }
+
+  function speakName() {
+    if (!synth || currentZ === null) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(nameDisplay.textContent);
+    u.lang = 'zh-TW';
+    u.rate = 0.85;
+    const voice = pickVoice();
+    if (voice) u.voice = voice;
+    u.onstart = () => speakBtn.classList.add('speaking');
+    u.onend = u.onerror = () => speakBtn.classList.remove('speaking');
+    synth.speak(u);
+  }
 
   function computePeriod(z) {
     if (z <= 2) return 1;
@@ -655,6 +712,7 @@
   resetKey.addEventListener('click', resetCurrent);
   submitBtn.addEventListener('click', submitAnswer);
   nextBtn.addEventListener('click', nextQuestion);
+  speakBtn.addEventListener('click', speakName);
 
   document.addEventListener('keydown', (e) => {
     const quizActive = document.getElementById('screenQuiz').classList.contains('active');
