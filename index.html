@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#14161a">
+<meta name="theme-color" content="#ffffff">
 <title>原子序練習</title>
 <style>
   :root {
@@ -13,6 +13,9 @@
     --text-faint: #bababa;
     --line: #d4d4d4;
     --line-strong: #000000;
+    --metal: #e4e7ef;
+    --metalloid: #d9ecd6;
+    --nonmetal: #fdf0bd;
   }
 
   * { box-sizing: border-box; }
@@ -35,6 +38,7 @@
   }
 
   .app { width: 100%; max-width: 380px; }
+  .app.wide { max-width: 980px; }
 
   .screen { display: none; }
   .screen.active { display: block; }
@@ -45,31 +49,6 @@
     margin-bottom: 18px;
     text-align: center;
   }
-
-  /* ---- mode select cards ---- */
-  .mode-card {
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    text-align: left;
-    transition: border-color 0.12s ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .mode-card:active { border-color: var(--line-strong); }
-  .mode-card h3 {
-    margin: 0 0 4px;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .mode-card p { margin: 0; font-size: 13px; color: var(--text-dim); }
-  .infinity { font-size: 16px; }
 
   /* ---- back button ---- */
   .back-btn {
@@ -116,80 +95,129 @@
   .lang-btn .sep { color: var(--line); font-weight: 400; }
   .lang-btn:active { border-color: var(--line-strong); }
 
-  /* ---- group grid ---- */
-  .group-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .group-btn {
-    aspect-ratio: 1.6;
+  /* ---- periodic table picker ---- */
+  .pt-top {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .pt-top .title { font-size: 17px; font-weight: 700; }
+  .pt-top .hint { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .pt-tools { display: flex; gap: 6px; flex-shrink: 0; }
+  .tool-btn {
+    padding: 7px 12px;
     background: var(--bg);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    font-size: 15px;
+    border-radius: 999px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--text);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     -webkit-user-select: none;
     user-select: none;
-    transition: background 0.08s ease, color 0.08s ease;
   }
-  .group-btn:active { background: var(--line-strong); color: var(--bg); }
-  .group-btn.wide {
-    grid-column: span 2;
-    aspect-ratio: auto;
-    padding: 13px 0;
+  .tool-btn:active { background: var(--line-strong); color: var(--bg); }
+
+  .pt-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    margin: 0 -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .pt-grid {
+    display: grid;
+    grid-template-columns: 34px repeat(18, 46px);
+    grid-auto-rows: 50px;
+    gap: 3px;
+    width: max-content;
+  }
+  .pt-grid .spacer { height: 8px; }
+
+  .pt-head, .pt-rowlab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text);
+    border-radius: 7px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    line-height: 1.1;
+  }
+  .pt-head small, .pt-rowlab small {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+  .pt-head:active, .pt-rowlab:active { background: var(--line); }
+  .pt-rowlab {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bg);
     font-size: 13px;
   }
+  .pt-rowlab.series { font-size: 11px; }
+  .pt-corner { position: sticky; left: 0; z-index: 2; background: var(--bg); }
 
-  /* ---- period list ---- */
-  .period-list { display: flex; flex-direction: column; gap: 8px; }
-  .period-btn {
+  .pt-cell {
+    position: relative;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 14px 18px;
-    cursor: pointer;
-    color: var(--text);
-    font-size: 15px;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.08s ease, color 0.08s ease;
-  }
-  .period-btn:active { background: var(--line-strong); color: var(--bg); }
-  .period-btn:active .count { color: var(--bg); }
-  .period-btn .count { color: var(--text-dim); font-size: 12px; }
-
-  /* ---- range picker ---- */
-  .range-row {
-    display: flex;
-    align-items: flex-end;
     justify-content: center;
-    gap: 14px;
-    margin: 30px 0 34px;
-  }
-  .range-field { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .range-field label { font-size: 12px; color: var(--text-dim); }
-  .range-input {
-    width: 84px;
-    padding: 12px 0;
-    text-align: center;
-    font-size: 22px;
-    background: var(--bg);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    color: var(--text);
+    border-radius: 7px;
+    background: var(--bg);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    line-height: 1;
+    padding-top: 6px;
+    transition: background 0.08s ease, color 0.08s ease, border-color 0.08s ease;
+  }
+  .pt-cell.metal { background: var(--metal); border-color: transparent; }
+  .pt-cell.metalloid { background: var(--metalloid); border-color: transparent; }
+  .pt-cell.nonmetal { background: var(--nonmetal); border-color: transparent; }
+  .pt-cell .z {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-dim);
     font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
   }
-  .range-input:focus { outline: none; border-color: var(--line-strong); }
-  .range-sep { color: var(--text-faint); font-size: 20px; padding-bottom: 12px; }
+  .pt-cell .nm { font-size: 16px; font-weight: 600; }
+  .pt-cell .sy { font-size: 9.5px; font-weight: 500; color: var(--text-dim); margin-top: 3px; }
+  .pt-cell.on { background: var(--line-strong); border-color: var(--line-strong); color: var(--bg); }
+  .pt-cell.on .z, .pt-cell.on .sy { color: rgba(255,255,255,0.65); }
+
+  .pt-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-dim); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .legend .m { background: var(--metal); }
+  .legend .md { background: var(--metalloid); }
+  .legend .nm { background: var(--nonmetal); }
 
   .btn {
     padding: 15px 0;
@@ -203,6 +231,15 @@
   }
   .btn-primary { width: 100%; background: var(--text); color: var(--bg); border-color: var(--text); }
   .btn-primary:active { opacity: 0.75; }
+  .btn-primary:disabled { opacity: 0.25; cursor: default; }
+  .pt-foot .btn-primary { width: auto; min-width: 200px; padding-left: 24px; padding-right: 24px; }
+  .pt-foot .btn-primary b { font-weight: 700; }
+
+  @media (max-width: 600px) {
+    .pt-foot { flex-direction: column; align-items: stretch; }
+    .pt-foot .btn-primary { width: 100%; }
+    .legend { justify-content: center; }
+  }
 
   /* ---- quiz screen ---- */
   .card {
@@ -263,8 +300,8 @@
   .reveal.show { opacity: 1; transform: translateY(0); }
 
   .answer-input {
-    margin-top: 22px;
-    width: 120px;
+    width: 140px;
+    margin: 18px auto 26px;
     padding: 10px 0;
     background: transparent;
     border: none;
@@ -290,7 +327,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 9px;
-    margin-top: 26px;
+    margin-top: 6px;
   }
   .key {
     padding: 16px 0;
@@ -334,7 +371,7 @@
     align-items: center;
     justify-content: center;
   }
-  .btn-next svg { width: 18px; height: 18px; }
+  .btn-next svg { width: 20px; height: 20px; }
 
   .stats {
     display: flex;
@@ -353,110 +390,37 @@
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app wide">
 
-  <!-- Screen A: mode select -->
-  <div class="screen active" id="screenMode">
-    <div class="eyebrow">選擇練習範圍</div>
-    <div class="mode-card" id="modeGroupCard">
-      <h3>依族練習</h3>
-      <p>選擇一個族，只練習同族元素</p>
-    </div>
-    <div class="mode-card" id="modePeriodCard">
-      <h3>依週期練習</h3>
-      <p>選擇一個週期，只練習同週期元素</p>
-    </div>
-    <div class="mode-card" id="modeRangeCard">
-      <h3>自訂範圍</h3>
-      <p>自訂原子序區間，例如 5 到 30</p>
-    </div>
-    <div class="mode-card" id="modeZenCard">
-      <h3>Zen 模式 <span class="infinity">∞</span></h3>
-      <p>全部 118 個元素，沒有範圍限制</p>
-    </div>
-  </div>
-
-  <!-- Screen B1: group picker -->
-  <div class="screen" id="screenGroupPick">
-    <div class="sub-header">
-      <button class="back-btn back-to-mode">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        返回
-      </button>
-      <span class="sub-title">選擇族</span>
-      <span></span>
-    </div>
-    <div class="group-grid" id="groupGrid">
-      <button class="group-btn" data-group="1A">1A</button>
-      <button class="group-btn" data-group="2A">2A</button>
-      <button class="group-btn" data-group="3B">3B</button>
-      <button class="group-btn" data-group="4B">4B</button>
-      <button class="group-btn" data-group="5B">5B</button>
-      <button class="group-btn" data-group="6B">6B</button>
-      <button class="group-btn" data-group="7B">7B</button>
-      <button class="group-btn" data-group="8B">8B</button>
-      <button class="group-btn" data-group="1B">1B</button>
-      <button class="group-btn" data-group="2B">2B</button>
-      <button class="group-btn" data-group="3A">3A</button>
-      <button class="group-btn" data-group="4A">4A</button>
-      <button class="group-btn" data-group="5A">5A</button>
-      <button class="group-btn" data-group="6A">6A</button>
-      <button class="group-btn" data-group="7A">7A</button>
-      <button class="group-btn" data-group="8A">8A</button>
-      <button class="group-btn wide" data-group="La">鑭系</button>
-      <button class="group-btn wide" data-group="Ac">錒系</button>
-    </div>
-  </div>
-
-  <!-- Screen B2: period picker -->
-  <div class="screen" id="screenPeriodPick">
-    <div class="sub-header">
-      <button class="back-btn back-to-mode">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        返回
-      </button>
-      <span class="sub-title">選擇週期</span>
-      <span></span>
-    </div>
-    <div class="period-list" id="periodList">
-      <button class="period-btn" data-period="1">第 1 週期 <span class="count">2 個元素</span></button>
-      <button class="period-btn" data-period="2">第 2 週期 <span class="count">8 個元素</span></button>
-      <button class="period-btn" data-period="3">第 3 週期 <span class="count">8 個元素</span></button>
-      <button class="period-btn" data-period="4">第 4 週期 <span class="count">18 個元素</span></button>
-      <button class="period-btn" data-period="5">第 5 週期 <span class="count">18 個元素</span></button>
-      <button class="period-btn" data-period="6">第 6 週期 <span class="count">32 個元素</span></button>
-      <button class="period-btn" data-period="7">第 7 週期 <span class="count">32 個元素</span></button>
-    </div>
-  </div>
-
-  <!-- Screen B3: range picker -->
-  <div class="screen" id="screenRangePick">
-    <div class="sub-header">
-      <button class="back-btn back-to-mode">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        返回
-      </button>
-      <span class="sub-title">自訂範圍</span>
-      <span></span>
-    </div>
-    <div class="range-row">
-      <div class="range-field">
-        <label>從</label>
-        <input class="range-input" id="rangeFrom" type="number" inputmode="numeric" placeholder="1" min="1" max="118">
+  <!-- Screen A: periodic table picker -->
+  <div class="screen active" id="screenTable">
+    <div class="pt-top">
+      <div>
+        <div class="title">元素週期表</div>
+        <div class="hint">點選元素、族（1A–8A）或週期（1–7）來選擇練習範圍</div>
       </div>
-      <div class="range-sep">–</div>
-      <div class="range-field">
-        <label>到</label>
-        <input class="range-input" id="rangeTo" type="number" inputmode="numeric" placeholder="118" min="1" max="118">
+      <div class="pt-tools">
+        <button class="tool-btn" id="selectAllBtn">全選</button>
+        <button class="tool-btn" id="clearBtn">清除</button>
       </div>
     </div>
-    <button class="btn btn-primary" id="rangeStartBtn">開始練習</button>
+    <div class="pt-scroll">
+      <div class="pt-grid" id="ptGrid"></div>
+    </div>
+    <div class="pt-foot">
+      <div class="legend">
+        <span><i class="m"></i>金屬</span>
+        <span><i class="md"></i>類金屬</span>
+        <span><i class="nm"></i>非金屬</span>
+      </div>
+      <button class="btn btn-primary" id="startBtn" disabled>開始練習</button>
+    </div>
   </div>
 
-  <!-- Screen C: quiz -->
+  <!-- Screen B: quiz -->
   <div class="screen" id="screenQuiz">
     <div class="sub-header">
-      <button class="back-btn back-to-mode">
+      <button class="back-btn" id="backBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         返回
       </button>
@@ -530,6 +494,15 @@
     ['鑪',104,4,'Rf','Rutherfordium'],['𨧀',105,5,'Db','Dubnium'],['𨭎',106,6,'Sg','Seaborgium'],['𨨏',107,7,'Bh','Bohrium'],['𨭆',108,8,'Hs','Hassium'],['鿏',109,9,'Mt','Meitnerium'],['鐽',110,10,'Ds','Darmstadtium'],['錀',111,11,'Rg','Roentgenium'],['鎶',112,12,'Cn','Copernicium'],['鉨',113,13,'Nh','Nihonium'],['鈇',114,14,'Fl','Flerovium'],['鏌',115,15,'Mc','Moscovium'],['鉝',116,16,'Lv','Livermorium'],['鿬',117,17,'Ts','Tennessine'],['鿫',118,18,'Og','Oganesson']
   ];
 
+  const NONMETALS = new Set([1,2,6,7,8,9,10,15,16,17,18,34,35,36,53,54,86]);
+  const METALLOIDS = new Set([5,14,32,33,51,52,84,85]);
+
+  // CAS-style column headers in table order; 8B spans IUPAC groups 8-10
+  const GROUP_HEADERS = [
+    ['1A',[1]],['2A',[2]],['3B',[3]],['4B',[4]],['5B',[5]],['6B',[6]],['7B',[7]],['8B',[8,9,10]],
+    ['1B',[11]],['2B',[12]],['3A',[13]],['4A',[14]],['5A',[15]],['6A',[16]],['7A',[17]],['8A',[18]]
+  ];
+
   let currentPool = ELEMENTS;
   let currentEl = null;
   let currentZ = null;
@@ -540,6 +513,9 @@
   let lastIndex = -1;
   const stats = { answered: 0, correct: 0 };
 
+  const app = document.querySelector('.app');
+  const ptGrid = document.getElementById('ptGrid');
+  const startBtn = document.getElementById('startBtn');
   const nameDisplay = document.getElementById('nameDisplay');
   const reveal = document.getElementById('reveal');
   const answerInput = document.getElementById('answerInput');
@@ -556,6 +532,128 @@
   const langBtn = document.getElementById('langBtn');
   const langZh = document.getElementById('langZh');
   const langEn = document.getElementById('langEn');
+
+  function computePeriod(z) {
+    if (z <= 2) return 1;
+    if (z <= 10) return 2;
+    if (z <= 18) return 3;
+    if (z <= 36) return 4;
+    if (z <= 54) return 5;
+    if (z <= 86) return 6;
+    return 7;
+  }
+
+  // ---- periodic table picker ----
+  const selected = new Set();
+  try {
+    const saved = JSON.parse(localStorage.getItem('sel') || '[]');
+    saved.forEach(z => { if (z >= 1 && z <= 118) selected.add(z); });
+  } catch (_) {}
+
+  function buildTable() {
+    const frag = document.createDocumentFragment();
+    const el = (cls, row, col, span) => {
+      const d = document.createElement('div');
+      d.className = cls;
+      d.style.gridRow = row;
+      d.style.gridColumn = span ? (col + ' / span ' + span) : col;
+      return d;
+    };
+
+    frag.appendChild(el('pt-corner', 1, 1));
+    let col = 2;
+    for (const [label, groups] of GROUP_HEADERS) {
+      const h = el('pt-head', 1, col, groups.length);
+      h.dataset.groups = groups.join(',');
+      h.innerHTML = '<small>' + groups.join(' ') + '</small>' + label;
+      frag.appendChild(h);
+      col += groups.length;
+    }
+
+    for (let p = 1; p <= 7; p++) {
+      const r = el('pt-rowlab', p + 1, 1);
+      r.dataset.period = p;
+      r.innerHTML = '<small>週期</small>' + p;
+      frag.appendChild(r);
+    }
+    const sp = el('spacer', 9, 1, 19);
+    frag.appendChild(sp);
+    const la = el('pt-rowlab series', 10, 1);
+    la.dataset.series = 'La';
+    la.textContent = '鑭系';
+    frag.appendChild(la);
+    const ac = el('pt-rowlab series', 11, 1);
+    ac.dataset.series = 'Ac';
+    ac.textContent = '錒系';
+    frag.appendChild(ac);
+
+    for (const e of ELEMENTS) {
+      const [name, z, g, sym] = e;
+      let row, column;
+      if (g === 'La') { row = 10; column = z - 58 + 5; }
+      else if (g === 'Ac') { row = 11; column = z - 90 + 5; }
+      else { row = computePeriod(z) + 1; column = g + 1; }
+      const cat = NONMETALS.has(z) ? 'nonmetal' : METALLOIDS.has(z) ? 'metalloid' : 'metal';
+      const c = el('pt-cell ' + cat, row, column);
+      c.dataset.z = z;
+      c.innerHTML = '<span class="z">' + z + '</span><span class="nm">' + name + '</span><span class="sy">' + sym + '</span>';
+      frag.appendChild(c);
+    }
+    ptGrid.appendChild(frag);
+  }
+
+  function renderSelection() {
+    ptGrid.querySelectorAll('.pt-cell').forEach(c => c.classList.toggle('on', selected.has(+c.dataset.z)));
+    const n = selected.size;
+    startBtn.disabled = n === 0;
+    startBtn.innerHTML = n === 0 ? '開始練習' : '開始練習 · <b>' + n + '</b> 個元素';
+    try { localStorage.setItem('sel', JSON.stringify([...selected])); } catch (_) {}
+  }
+
+  function toggleSet(zs) {
+    const all = zs.every(z => selected.has(z));
+    zs.forEach(z => all ? selected.delete(z) : selected.add(z));
+    renderSelection();
+  }
+
+  ptGrid.addEventListener('click', (e) => {
+    const cell = e.target.closest('.pt-cell');
+    if (cell) { toggleSet([+cell.dataset.z]); return; }
+    const head = e.target.closest('.pt-head');
+    if (head) {
+      const groups = head.dataset.groups.split(',').map(Number);
+      toggleSet(ELEMENTS.filter(el => groups.includes(el[2])).map(el => el[1]));
+      return;
+    }
+    const rowlab = e.target.closest('.pt-rowlab');
+    if (!rowlab) return;
+    if (rowlab.dataset.period) {
+      const p = +rowlab.dataset.period;
+      toggleSet(ELEMENTS.filter(el => typeof el[2] === 'number' && computePeriod(el[1]) === p).map(el => el[1]));
+    } else if (rowlab.dataset.series === 'La') {
+      toggleSet(ELEMENTS.filter(el => el[1] >= 58 && el[1] <= 71).map(el => el[1]));
+    } else {
+      toggleSet(ELEMENTS.filter(el => el[1] >= 90 && el[1] <= 103).map(el => el[1]));
+    }
+  });
+
+  document.getElementById('selectAllBtn').addEventListener('click', () => {
+    ELEMENTS.forEach(el => selected.add(el[1]));
+    renderSelection();
+  });
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    selected.clear();
+    renderSelection();
+  });
+  startBtn.addEventListener('click', () => {
+    if (!selected.size) return;
+    const pool = ELEMENTS.filter(el => selected.has(el[1]));
+    const label = pool.length === ELEMENTS.length ? '全部 118 個元素' : '已選 ' + pool.length + ' 個元素';
+    startSession(pool, label);
+  });
+
+  buildTable();
+  renderSelection();
 
   // ---- 中文 / English symbol toggle ----
   function renderName() {
@@ -606,19 +704,11 @@
     synth.speak(u);
   }
 
-  function computePeriod(z) {
-    if (z <= 2) return 1;
-    if (z <= 10) return 2;
-    if (z <= 18) return 3;
-    if (z <= 36) return 4;
-    if (z <= 54) return 5;
-    if (z <= 86) return 6;
-    return 7;
-  }
-
+  // ---- quiz ----
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+    app.classList.toggle('wide', id === 'screenTable');
   }
 
   function pickElement() {
@@ -631,7 +721,7 @@
   }
 
   function clearFeedback() {
-    reveal.classList.remove('show', 'wrong-color');
+    reveal.classList.remove('show');
     reveal.textContent = '';
     answerInput.classList.remove('correct', 'wrong');
     submitBtn.classList.remove('wrong-state');
@@ -686,7 +776,7 @@
     } else {
       answerInput.classList.add('wrong');
       reveal.textContent = '✗ 正確答案 ' + currentZ;
-      reveal.classList.add('show', 'wrong-color');
+      reveal.classList.add('show');
       submitBtn.classList.add('wrong-state');
       submitBtn.textContent = '再試一次';
     }
@@ -705,63 +795,12 @@
     nextQuestion();
   }
 
-  // ---- mode select ----
-  document.getElementById('modeGroupCard').addEventListener('click', () => showScreen('screenGroupPick'));
-  document.getElementById('modePeriodCard').addEventListener('click', () => showScreen('screenPeriodPick'));
-  document.getElementById('modeRangeCard').addEventListener('click', () => showScreen('screenRangePick'));
-  document.getElementById('modeZenCard').addEventListener('click', () => startSession(ELEMENTS, 'Zen 模式 ∞'));
-
-  document.querySelectorAll('.back-to-mode').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
-      showScreen('screenMode');
-    });
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if (advanceTimer) { clearTimeout(advanceTimer); advanceTimer = null; }
+    if (synth) synth.cancel();
+    showScreen('screenTable');
   });
 
-  // ---- group picker ----
-  // CAS-style group label -> IUPAC group numbers (8B spans groups 8-10)
-  const CAS_GROUPS = {
-    '1A': [1], '2A': [2],
-    '3B': [3], '4B': [4], '5B': [5], '6B': [6], '7B': [7], '8B': [8, 9, 10],
-    '1B': [11], '2B': [12],
-    '3A': [13], '4A': [14], '5A': [15], '6A': [16], '7A': [17], '8A': [18]
-  };
-
-  document.getElementById('groupGrid').addEventListener('click', (e) => {
-    const btn = e.target.closest('.group-btn');
-    if (!btn) return;
-    const g = btn.dataset.group;
-    // 鑭/錒 sit in group 3B but also head their own series
-    const pool = g === 'La' ? ELEMENTS.filter(el => el[1] >= 57 && el[1] <= 71)
-               : g === 'Ac' ? ELEMENTS.filter(el => el[1] >= 89 && el[1] <= 103)
-               : ELEMENTS.filter(el => CAS_GROUPS[g].includes(el[2]));
-    const label = g === 'La' ? '鑭系' : g === 'Ac' ? '錒系' : ('第 ' + g + ' 族');
-    startSession(pool, label);
-  });
-
-  // ---- period picker ----
-  document.getElementById('periodList').addEventListener('click', (e) => {
-    const btn = e.target.closest('.period-btn');
-    if (!btn) return;
-    const p = parseInt(btn.dataset.period, 10);
-    const pool = ELEMENTS.filter(el => computePeriod(el[1]) === p);
-    startSession(pool, '第 ' + p + ' 週期');
-  });
-
-  // ---- range picker ----
-  document.getElementById('rangeStartBtn').addEventListener('click', () => {
-    const fromField = document.getElementById('rangeFrom');
-    const toField = document.getElementById('rangeTo');
-    let from = parseInt(fromField.value || fromField.placeholder, 10);
-    let to = parseInt(toField.value || toField.placeholder, 10);
-    from = Math.max(1, Math.min(118, from));
-    to = Math.max(1, Math.min(118, to));
-    if (from > to) { const t = from; from = to; to = t; }
-    const pool = ELEMENTS.filter(el => el[1] >= from && el[1] <= to);
-    startSession(pool, '範圍 ' + from + '–' + to);
-  });
-
-  // ---- quiz interactions ----
   keypad.addEventListener('click', (e) => {
     const key = e.target.closest('.key');
     if (!key || answered) return;
