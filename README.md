@@ -1,12 +1,12 @@
 # Periodic Table Practice
 
-A single-page web app with three Traditional Chinese (繁體中文) chemistry drills: atomic numbers across the full 118-element periodic table, classifying substances as elements, compounds, solutions, or other mixtures, and writing the chemical formula for a named compound.
+A single-page web app with four Traditional Chinese (繁體中文) chemistry drills: atomic numbers across the full 118-element periodic table, classifying substances as elements, compounds, solutions, or other mixtures, recalling common ion charges, and writing the chemical formula for a named compound.
 
 **[Try it live](#)** — once GitHub Pages is enabled (see below), replace this link.
 
 ## How it works
 
-A tab bar at the top switches between the three practice modes.
+A tab bar at the top switches between the four practice modes.
 
 ### 原子序練習 (atomic number practice)
 
@@ -33,6 +33,10 @@ A 185-item bank covering the standard 國中 curriculum, shown with both their C
 The set deliberately includes the classic 純物質 vs 混合物 "trap pairs" that sound alike but aren't — 過氧化氫 (compound) vs 雙氧水 (solution), 氯化氫 (compound) vs 鹽酸 (solution), 24K金 (element) vs 14K金 (solution alloy), 蒸餾水 (compound) vs 自來水 (solution), and more.
 
 Toggle which categories to include with the colored chips (at least one must stay selected), then tap the matching category button for each item — or press **1**–**4** on a keyboard. A correct answer auto-advances; a wrong one highlights the right category and waits for **下一題**.
+
+### 化合價練習 (ion charge / valence practice)
+
+Writing a correct chemical formula means balancing charges, so this mode drills the 31 ion charges you need first — 15 陽離子 (cations, e.g. 氫 is **+1**, 鋁 is **+3**) and 16 陰離子 (anions, e.g. 氧 is **-2**, 硫酸根 is **-2**), including common polyatomic ions like 銨根 (NH₄⁺), 氫氧根 (OH⁻), 硝酸根 (NO₃⁻), and 磷酸根 (PO₄³⁻). Filter by 陽離子/陰離子 with the chips, then answer with a compact `+`/`-`/digit keypad — either `+1` or `1+` style is accepted. This mode is meant to be mastered before 化學式練習, since every formula there is built from these same ions.
 
 ### 化學式練習 (chemical formula practice)
 

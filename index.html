@@ -26,6 +26,8 @@
     --fcat-base: #c8f2c8;
     --fcat-salt: #f0d9ff;
     --fcat-organic: #fff2b3;
+    --vcat-cation: #ffd6d6;
+    --vcat-anion: #d6e8ff;
   }
 
   * { box-sizing: border-box; }
@@ -226,6 +228,15 @@
     user-select: none;
   }
   .quick-btn:active { background: var(--line-strong); color: var(--bg); }
+
+  /* ---- valence (ion charge) quiz ---- */
+  .charge-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .charge-grid .sym-btn { padding: 14px 0; font-size: 20px; font-weight: 700; }
 
   /* ---- periodic table picker ---- */
   .pt-top {
@@ -527,6 +538,7 @@
   <div class="mode-tabs" id="modeTabs">
     <button class="mode-tab active" data-target="screenTable">原子序</button>
     <button class="mode-tab" data-target="screenClassifySetup">物質分類</button>
+    <button class="mode-tab" data-target="screenValenceSetup">化合價</button>
     <button class="mode-tab" data-target="screenFormulaSetup">化學式</button>
   </div>
 
@@ -570,7 +582,22 @@
     </div>
   </div>
 
-  <!-- Screen A3: formula practice setup -->
+  <!-- Screen A3: valence (ion charge) practice setup -->
+  <div class="screen" id="screenValenceSetup">
+    <div class="pt-top">
+      <div>
+        <div class="title">化合價練習</div>
+        <div class="hint">寫化學式前，先熟記常見離子的電荷 — 例如氫是 +1</div>
+      </div>
+    </div>
+    <div class="cat-chip-row" id="vCatChipRow"></div>
+    <div class="pt-foot">
+      <span></span>
+      <button class="btn btn-primary" id="valenceStartBtn">開始練習</button>
+    </div>
+  </div>
+
+  <!-- Screen A4: formula practice setup -->
   <div class="screen" id="screenFormulaSetup">
     <div class="pt-top">
       <div>
@@ -685,7 +712,55 @@
     </div>
   </div>
 
-  <!-- Screen D: formula quiz -->
+  <!-- Screen D: valence (ion charge) quiz -->
+  <div class="screen" id="screenValenceQuiz">
+    <div class="sub-header">
+      <button class="back-btn" id="backBtnV">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回
+      </button>
+      <span class="sub-title" id="quizLabelV"></span>
+      <span></span>
+    </div>
+    <div class="card">
+      <div class="name-row">
+        <div class="formula-name" id="valenceName">—</div>
+        <button class="speak-btn" id="speakBtnV" aria-label="發音" title="發音">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        </button>
+      </div>
+      <div class="classify-en" id="valenceEn"></div>
+      <div class="reveal" id="revealV"></div>
+      <input class="answer-input" id="valenceInput" type="text" inputmode="none" readonly autocomplete="off" placeholder="例如 +1" />
+
+      <div class="charge-grid" id="chargeGrid">
+        <button class="sym-btn" data-ins="+">+</button>
+        <button class="sym-btn" data-ins="-">−</button>
+        <button class="sym-btn" id="valenceBackspace" aria-label="刪除">⌫</button>
+        <button class="sym-btn" data-ins="1">1</button>
+        <button class="sym-btn" data-ins="2">2</button>
+        <button class="sym-btn" data-ins="3">3</button>
+      </div>
+      <div class="quick-row">
+        <button class="quick-btn" id="valenceClear">清除</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-submit" id="submitBtnV">送出</button>
+        <button class="btn btn-next" id="nextBtnV" aria-label="下一個">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div>已作答 <b id="statAnsweredV">0</b></div>
+      <div>答對 <b id="statCorrectV">0</b></div>
+      <div>正確率 <b id="statAccuracyV">—</b></div>
+    </div>
+  </div>
+
+  <!-- Screen E: formula quiz -->
   <div class="screen" id="screenFormulaQuiz">
     <div class="sub-header">
       <button class="back-btn" id="backBtnF">
@@ -979,6 +1054,58 @@
     return s.replace(/\s+/g, '').toLowerCase();
   }
 
+  // ---- valence (ion charge) practice: [Chinese name, pretty formula (no charge), canonical charge, English name, subcat] ----
+  // subcat: 'cation' (positive) | 'anion' (negative)
+  const VALENCES = [
+    ['氫','H','+1','Hydrogen ion','cation'],
+    ['鈉','Na','+1','Sodium ion','cation'],
+    ['鉀','K','+1','Potassium ion','cation'],
+    ['銀','Ag','+1','Silver ion','cation'],
+    ['銨根','NH₄','+1','Ammonium ion','cation'],
+    ['亞銅','Cu','+1','Copper(I) ion (cuprous)','cation'],
+    ['鎂','Mg','+2','Magnesium ion','cation'],
+    ['鈣','Ca','+2','Calcium ion','cation'],
+    ['鋇','Ba','+2','Barium ion','cation'],
+    ['鋅','Zn','+2','Zinc ion','cation'],
+    ['銅','Cu','+2','Copper(II) ion (cupric)','cation'],
+    ['亞鐵','Fe','+2','Iron(II) ion (ferrous)','cation'],
+    ['汞','Hg','+2','Mercury(II) ion','cation'],
+    ['鋁','Al','+3','Aluminum ion','cation'],
+    ['鐵','Fe','+3','Iron(III) ion (ferric)','cation'],
+
+    ['氟','F','-1','Fluoride ion','anion'],
+    ['氯','Cl','-1','Chloride ion','anion'],
+    ['溴','Br','-1','Bromide ion','anion'],
+    ['碘','I','-1','Iodide ion','anion'],
+    ['氫氧根','OH','-1','Hydroxide ion','anion'],
+    ['硝酸根','NO₃','-1','Nitrate ion','anion'],
+    ['碳酸氫根','HCO₃','-1','Bicarbonate ion','anion'],
+    ['過錳酸根','MnO₄','-1','Permanganate ion','anion'],
+    ['醋酸根','CH₃COO','-1','Acetate ion','anion'],
+    ['氧','O','-2','Oxide ion','anion'],
+    ['硫','S','-2','Sulfide ion','anion'],
+    ['硫酸根','SO₄','-2','Sulfate ion','anion'],
+    ['碳酸根','CO₃','-2','Carbonate ion','anion'],
+    ['重鉻酸根','Cr₂O₇','-2','Dichromate ion','anion'],
+    ['氮','N','-3','Nitride ion','anion'],
+    ['磷酸根','PO₄','-3','Phosphate ion','anion']
+  ];
+
+  const VALENCE_CAT_META = {
+    cation: { label: '陽離子 (+)', color: 'var(--vcat-cation)' },
+    anion: { label: '陰離子 (−)', color: 'var(--vcat-anion)' }
+  };
+  const VALENCE_CAT_ORDER = ['cation', 'anion'];
+
+  function normalizeCharge(raw) {
+    const s = raw.replace(/\s+/g, '');
+    let m = s.match(/^([+-])(\d+)$/);
+    if (m) return m[1] + m[2];
+    m = s.match(/^(\d+)([+-])$/);
+    if (m) return m[2] + m[1];
+    return null;
+  }
+
   const NONMETALS = new Set([1,2,6,7,8,9,10,15,16,17,18,34,35,36,53,54,86]);
   const METALLOIDS = new Set([5,14,32,33,51,52,84,85]);
 
@@ -1043,6 +1170,19 @@
   const statAnsweredF = document.getElementById('statAnsweredF');
   const statCorrectF = document.getElementById('statCorrectF');
   const statAccuracyF = document.getElementById('statAccuracyF');
+  const vCatChipRow = document.getElementById('vCatChipRow');
+  const valenceStartBtn = document.getElementById('valenceStartBtn');
+  const valenceName = document.getElementById('valenceName');
+  const valenceEn = document.getElementById('valenceEn');
+  const revealV = document.getElementById('revealV');
+  const valenceInput = document.getElementById('valenceInput');
+  const submitBtnV = document.getElementById('submitBtnV');
+  const nextBtnV = document.getElementById('nextBtnV');
+  const speakBtnV = document.getElementById('speakBtnV');
+  const quizLabelV = document.getElementById('quizLabelV');
+  const statAnsweredV = document.getElementById('statAnsweredV');
+  const statCorrectV = document.getElementById('statCorrectV');
+  const statAccuracyV = document.getElementById('statAccuracyV');
 
   function computePeriod(z) {
     if (z <= 2) return 1;
@@ -1216,7 +1356,7 @@
   }
 
   // ---- quiz ----
-  const HOME_SCREENS = ['screenTable', 'screenClassifySetup', 'screenFormulaSetup'];
+  const HOME_SCREENS = ['screenTable', 'screenClassifySetup', 'screenValenceSetup', 'screenFormulaSetup'];
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1472,6 +1612,187 @@
     showScreen('screenClassifySetup');
   });
 
+  // ---- valence (ion charge) practice ----
+  let selectedVCats = new Set(VALENCE_CAT_ORDER);
+  try {
+    const saved = JSON.parse(localStorage.getItem('valenceCats') || 'null');
+    if (Array.isArray(saved) && saved.length) selectedVCats = new Set(saved.filter(k => VALENCE_CAT_ORDER.includes(k)));
+  } catch (_) {}
+
+  function buildVCatChips() {
+    const frag = document.createDocumentFragment();
+    VALENCE_CAT_ORDER.forEach(key => {
+      const meta = VALENCE_CAT_META[key];
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'cat-chip';
+      chip.dataset.cat = key;
+      chip.innerHTML = '<span class="dot" style="background:' + meta.color + '"></span>' + meta.label;
+      frag.appendChild(chip);
+    });
+    vCatChipRow.appendChild(frag);
+  }
+
+  function renderVCatChips() {
+    vCatChipRow.querySelectorAll('.cat-chip').forEach(c => c.classList.toggle('off', !selectedVCats.has(c.dataset.cat)));
+    const n = VALENCES.filter(v => selectedVCats.has(v[4])).length;
+    valenceStartBtn.disabled = n === 0;
+    valenceStartBtn.innerHTML = n === 0 ? '開始練習' : '開始練習 · <b>' + n + '</b> 題';
+    try { localStorage.setItem('valenceCats', JSON.stringify([...selectedVCats])); } catch (_) {}
+  }
+
+  vCatChipRow.addEventListener('click', (e) => {
+    const chip = e.target.closest('.cat-chip');
+    if (!chip) return;
+    const key = chip.dataset.cat;
+    if (selectedVCats.has(key)) {
+      if (selectedVCats.size === 1) return;
+      selectedVCats.delete(key);
+    } else {
+      selectedVCats.add(key);
+    }
+    renderVCatChips();
+  });
+
+  buildVCatChips();
+  renderVCatChips();
+
+  let valencePool = VALENCES;
+  let currentValence = null;
+  let valenceAnswered = false;
+  let valenceAdvanceTimer = null;
+  let valenceLastIndex = -1;
+  const statsV = { answered: 0, correct: 0 };
+
+  function pickValence() {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * valencePool.length);
+    } while (idx === valenceLastIndex && valencePool.length > 1);
+    valenceLastIndex = idx;
+    return valencePool[idx];
+  }
+
+  function updateStatsV() {
+    statAnsweredV.textContent = statsV.answered;
+    statCorrectV.textContent = statsV.correct;
+    statAccuracyV.textContent = statsV.answered ? Math.round(statsV.correct / statsV.answered * 100) + '%' : '—';
+  }
+
+  function speakValenceName() {
+    if (!synth || !currentValence) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(currentValence[0]);
+    u.lang = 'zh-TW';
+    u.rate = 0.85;
+    const voice = pickVoice('zh');
+    if (voice) u.voice = voice;
+    u.onstart = () => speakBtnV.classList.add('speaking');
+    u.onend = u.onerror = () => speakBtnV.classList.remove('speaking');
+    synth.speak(u);
+  }
+  if (!synth) speakBtnV.hidden = true;
+
+  function clearFeedbackV() {
+    revealV.classList.remove('show');
+    revealV.textContent = '';
+    valenceInput.classList.remove('correct', 'wrong');
+    submitBtnV.classList.remove('wrong-state');
+    submitBtnV.textContent = '送出';
+  }
+
+  function nextValenceQuestion() {
+    if (valenceAdvanceTimer) { clearTimeout(valenceAdvanceTimer); valenceAdvanceTimer = null; }
+    currentValence = pickValence();
+    valenceName.textContent = currentValence[0];
+    valenceEn.textContent = currentValence[1] + ' · ' + currentValence[3];
+    valenceInput.value = '';
+    clearFeedbackV();
+    valenceAnswered = false;
+    valenceInput.focus();
+  }
+
+  function resetValenceCurrent() {
+    if (valenceAdvanceTimer) { clearTimeout(valenceAdvanceTimer); valenceAdvanceTimer = null; }
+    valenceInput.value = '';
+    clearFeedbackV();
+    valenceAnswered = false;
+    valenceInput.focus();
+  }
+
+  function submitValence() {
+    if (valenceAnswered || !currentValence) return;
+    const raw = valenceInput.value.trim();
+    const normalized = raw ? normalizeCharge(raw) : null;
+    if (!normalized) {
+      valenceInput.classList.add('wrong');
+      setTimeout(() => valenceInput.classList.remove('wrong'), 300);
+      return;
+    }
+
+    valenceAnswered = true;
+    statsV.answered++;
+
+    if (normalized === currentValence[2]) {
+      statsV.correct++;
+      valenceInput.classList.add('correct');
+      revealV.textContent = '✓ ' + currentValence[2];
+      revealV.classList.add('show');
+      submitBtnV.textContent = '✓ 正確';
+      valenceAdvanceTimer = setTimeout(nextValenceQuestion, 900);
+    } else {
+      valenceInput.classList.add('wrong');
+      revealV.textContent = '✗ 正確答案：' + currentValence[2];
+      revealV.classList.add('show');
+      submitBtnV.classList.add('wrong-state');
+      submitBtnV.textContent = '再試一次';
+    }
+
+    updateStatsV();
+  }
+
+  function startValenceSession(pool) {
+    valencePool = pool;
+    quizLabelV.textContent = pool.length === VALENCES.length ? '化合價 · 全部 ' + pool.length + ' 題' : '化合價 · 已選 ' + pool.length + ' 題';
+    statsV.answered = 0;
+    statsV.correct = 0;
+    updateStatsV();
+    valenceLastIndex = -1;
+    showScreen('screenValenceQuiz');
+    nextValenceQuestion();
+  }
+
+  valenceStartBtn.addEventListener('click', () => {
+    const pool = VALENCES.filter(v => selectedVCats.has(v[4]));
+    if (!pool.length) return;
+    startValenceSession(pool);
+  });
+
+  document.getElementById('screenValenceQuiz').querySelectorAll('[data-ins]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (valenceAnswered) return;
+      valenceInput.value += btn.dataset.ins;
+      valenceInput.focus();
+    });
+  });
+
+  document.getElementById('valenceBackspace').addEventListener('click', () => {
+    if (valenceAnswered) return;
+    valenceInput.value = valenceInput.value.slice(0, -1);
+    valenceInput.focus();
+  });
+
+  document.getElementById('valenceClear').addEventListener('click', resetValenceCurrent);
+  submitBtnV.addEventListener('click', submitValence);
+  nextBtnV.addEventListener('click', nextValenceQuestion);
+  speakBtnV.addEventListener('click', speakValenceName);
+
+  document.getElementById('backBtnV').addEventListener('click', () => {
+    if (valenceAdvanceTimer) { clearTimeout(valenceAdvanceTimer); valenceAdvanceTimer = null; }
+    if (synth) synth.cancel();
+    showScreen('screenValenceSetup');
+  });
+
   keypad.addEventListener('click', (e) => {
     const key = e.target.closest('.key');
     if (!key || answered) return;
@@ -1672,6 +1993,13 @@
     else submitFormula();
   });
 
+  valenceInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (valenceAnswered) nextValenceQuestion();
+    else submitValence();
+  });
+
   document.getElementById('backBtnF').addEventListener('click', () => {
     if (formulaAdvanceTimer) { clearTimeout(formulaAdvanceTimer); formulaAdvanceTimer = null; }
     if (synth) synth.cancel();
@@ -1682,7 +2010,8 @@
     const quizActive = document.getElementById('screenQuiz').classList.contains('active');
     const classifyActive = document.getElementById('screenClassifyQuiz').classList.contains('active');
     const formulaActive = document.getElementById('screenFormulaQuiz').classList.contains('active');
-    if (formulaActive) return;
+    const valenceActive = document.getElementById('screenValenceQuiz').classList.contains('active');
+    if (formulaActive || valenceActive) return;
     if (!quizActive && !classifyActive) return;
 
     if (classifyActive) {
