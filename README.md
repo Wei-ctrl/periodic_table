@@ -1,12 +1,12 @@
 # Periodic Table Practice
 
-A single-page web app with two Traditional Chinese (繁體中文) chemistry drills: atomic numbers across the full 118-element periodic table, and classifying substances as elements, compounds, solutions, or other mixtures.
+A single-page web app with three Traditional Chinese (繁體中文) chemistry drills: atomic numbers across the full 118-element periodic table, classifying substances as elements, compounds, solutions, or other mixtures, and writing the chemical formula for a named compound.
 
 **[Try it live](#)** — once GitHub Pages is enabled (see below), replace this link.
 
 ## How it works
 
-A tab bar at the top switches between the two practice modes.
+A tab bar at the top switches between the three practice modes.
 
 ### 原子序練習 (atomic number practice)
 
@@ -33,6 +33,10 @@ A 185-item bank covering the standard 國中 curriculum, shown with both their C
 The set deliberately includes the classic 純物質 vs 混合物 "trap pairs" that sound alike but aren't — 過氧化氫 (compound) vs 雙氧水 (solution), 氯化氫 (compound) vs 鹽酸 (solution), 24K金 (element) vs 14K金 (solution alloy), 蒸餾水 (compound) vs 自來水 (solution), and more.
 
 Toggle which categories to include with the colored chips (at least one must stay selected), then tap the matching category button for each item — or press **1**–**4** on a keyboard. A correct answer auto-advances; a wrong one highlights the right category and waits for **下一題**.
+
+### 化學式練習 (chemical formula practice)
+
+An 84-item bank of compounds grouped into six chip-filterable categories — 氧化物 (oxides), 氫化物 (hydrides/water), 酸 (acids), 鹼 (bases), 鹽類 (salts), 有機物 (organics). Shown a Chinese name (e.g. 二氧化氮), type the chemical formula (e.g. `NO2`) into the text field — matching is case-insensitive and ignores whitespace, so `no2` also works. Quick-insert buttons handle `(` and `)` for formulas like `Ca(OH)2` or `Fe(NO3)2` without switching keyboards, plus a backspace and a 清除 (clear) button that also resets a wrong answer for another attempt. Press Enter to submit or advance.
 
 ## Tech
 

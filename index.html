@@ -20,6 +20,12 @@
     --cls-compound: #ffe3a3;
     --cls-solution: #bfe6c4;
     --cls-mixture: #f6c6c6;
+    --fcat-oxide: #ffd9b3;
+    --fcat-hydride: #c9e4ff;
+    --fcat-acid: #ffb3b3;
+    --fcat-base: #c8f2c8;
+    --fcat-salt: #f0d9ff;
+    --fcat-organic: #fff2b3;
   }
 
   * { box-sizing: border-box; }
@@ -163,6 +169,36 @@
   .cat-btn.wrong { border-color: var(--line-strong); opacity: 0.55; text-decoration: line-through; }
   .btn-next.btn-next-wide { flex: 1; gap: 8px; }
   .btn-next-wide svg { width: 18px; height: 18px; }
+
+  /* ---- formula quiz ---- */
+  .formula-name { font-size: 32px; font-weight: 600; word-break: break-word; }
+  .formula-input {
+    width: 100%;
+    font-size: 24px;
+    letter-spacing: 0.03em;
+    text-align: center;
+  }
+  .quick-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 16px 0 4px;
+  }
+  .quick-btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .quick-btn:active { background: var(--line-strong); color: var(--bg); }
 
   /* ---- periodic table picker ---- */
   .pt-top {
@@ -462,8 +498,9 @@
 <div class="app wide">
 
   <div class="mode-tabs" id="modeTabs">
-    <button class="mode-tab active" data-target="screenTable">原子序練習</button>
-    <button class="mode-tab" data-target="screenClassifySetup">物質分類練習</button>
+    <button class="mode-tab active" data-target="screenTable">原子序</button>
+    <button class="mode-tab" data-target="screenClassifySetup">物質分類</button>
+    <button class="mode-tab" data-target="screenFormulaSetup">化學式</button>
   </div>
 
   <!-- Screen A: periodic table picker -->
@@ -503,6 +540,21 @@
     <div class="pt-foot">
       <span></span>
       <button class="btn btn-primary" id="classifyStartBtn">開始練習</button>
+    </div>
+  </div>
+
+  <!-- Screen A3: formula practice setup -->
+  <div class="screen" id="screenFormulaSetup">
+    <div class="pt-top">
+      <div>
+        <div class="title">化學式練習</div>
+        <div class="hint">看中文名稱，寫出正確的化學式</div>
+      </div>
+    </div>
+    <div class="cat-chip-row" id="fCatChipRow"></div>
+    <div class="pt-foot">
+      <span></span>
+      <button class="btn btn-primary" id="formulaStartBtn">開始練習</button>
     </div>
   </div>
 
@@ -606,6 +658,49 @@
     </div>
   </div>
 
+  <!-- Screen D: formula quiz -->
+  <div class="screen" id="screenFormulaQuiz">
+    <div class="sub-header">
+      <button class="back-btn" id="backBtnF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回
+      </button>
+      <span class="sub-title" id="quizLabelF"></span>
+      <span></span>
+    </div>
+    <div class="card">
+      <div class="name-row">
+        <div class="formula-name" id="formulaName">—</div>
+        <button class="speak-btn" id="speakBtnF" aria-label="發音" title="發音">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        </button>
+      </div>
+      <div class="classify-en" id="formulaEn"></div>
+      <div class="reveal" id="revealF"></div>
+      <input class="answer-input formula-input" id="formulaInput" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例如 NaOH" />
+
+      <div class="quick-row">
+        <button class="quick-btn" data-ins="(">(</button>
+        <button class="quick-btn" data-ins=")">)</button>
+        <button class="quick-btn" id="formulaBackspace" aria-label="刪除">⌫</button>
+        <button class="quick-btn" id="formulaClear">清除</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-submit" id="submitBtnF">送出</button>
+        <button class="btn btn-next" id="nextBtnF" aria-label="下一個">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div>已作答 <b id="statAnsweredF">0</b></div>
+      <div>答對 <b id="statCorrectF">0</b></div>
+      <div>正確率 <b id="statAccuracyF">—</b></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -704,6 +799,119 @@
   };
   const CAT_ORDER = ['element', 'compound', 'solution', 'mixture'];
 
+  // ---- formula practice: [Chinese name, canonical formula (ASCII), pretty formula (unicode), English name, subcat] ----
+  const FORMULAS = [
+    // 氧化物 oxides
+    ['一氧化碳','CO','CO','Carbon monoxide','oxide'],
+    ['二氧化碳','CO2','CO₂','Carbon dioxide','oxide'],
+    ['乾冰(固態二氧化碳)','CO2','CO₂','Dry ice (solid carbon dioxide)','oxide'],
+    ['二氧化硫','SO2','SO₂','Sulfur dioxide','oxide'],
+    ['三氧化硫','SO3','SO₃','Sulfur trioxide','oxide'],
+    ['一氧化氮','NO','NO','Nitric oxide','oxide'],
+    ['二氧化氮','NO2','NO₂','Nitrogen dioxide','oxide'],
+    ['五氧化二磷','P2O5','P₂O₅','Phosphorus pentoxide','oxide'],
+    ['二氧化矽(石英)','SiO2','SiO₂','Silicon dioxide (quartz)','oxide'],
+    ['氧化鋁','Al2O3','Al₂O₃','Aluminum oxide','oxide'],
+    ['氧化鐵','Fe2O3','Fe₂O₃','Iron(III) oxide','oxide'],
+    ['氧化亞鐵','FeO','FeO','Iron(II) oxide','oxide'],
+    ['四氧化三鐵','Fe3O4','Fe₃O₄','Iron(II,III) oxide (magnetite)','oxide'],
+    ['氧化銅','CuO','CuO','Copper(II) oxide','oxide'],
+    ['氧化亞銅','Cu2O','Cu₂O','Copper(I) oxide','oxide'],
+    ['氧化鈣(生石灰)','CaO','CaO','Calcium oxide (quicklime)','oxide'],
+    ['氧化鎂','MgO','MgO','Magnesium oxide','oxide'],
+    ['過氧化氫','H2O2','H₂O₂','Hydrogen peroxide','oxide'],
+
+    // 氫化物與水 hydrides / water
+    ['水','H2O','H₂O','Water','hydride'],
+    ['氨','NH3','NH₃','Ammonia','hydride'],
+    ['甲烷(沼氣)','CH4','CH₄','Methane','hydride'],
+    ['硫化氫','H2S','H₂S','Hydrogen sulfide','hydride'],
+    ['氯化氫','HCl','HCl','Hydrogen chloride','hydride'],
+    ['氟化氫','HF','HF','Hydrogen fluoride','hydride'],
+    ['碘化氫','HI','HI','Hydrogen iodide','hydride'],
+    ['氫化鈣','CaH2','CaH₂','Calcium hydride','hydride'],
+
+    // 酸 acids
+    ['硫酸','H2SO4','H₂SO₄','Sulfuric acid','acid'],
+    ['亞硫酸','H2SO3','H₂SO₃','Sulfurous acid','acid'],
+    ['硝酸','HNO3','HNO₃','Nitric acid','acid'],
+    ['亞硝酸','HNO2','HNO₂','Nitrous acid','acid'],
+    ['碳酸','H2CO3','H₂CO₃','Carbonic acid','acid'],
+    ['磷酸','H3PO4','H₃PO₄','Phosphoric acid','acid'],
+    ['冰醋酸(乙酸)','CH3COOH','CH₃COOH','Acetic acid','acid'],
+    ['檸檬酸','C6H8O7','C₆H₈O₇','Citric acid','acid'],
+
+    // 鹼 bases
+    ['氫氧化鈉','NaOH','NaOH','Sodium hydroxide','base'],
+    ['氫氧化鉀','KOH','KOH','Potassium hydroxide','base'],
+    ['氫氧化鎂','Mg(OH)2','Mg(OH)₂','Magnesium hydroxide','base'],
+    ['氫氧化鈣(熟石灰)','Ca(OH)2','Ca(OH)₂','Calcium hydroxide','base'],
+    ['氫氧化鋁','Al(OH)3','Al(OH)₃','Aluminum hydroxide','base'],
+    ['氫氧化鋇','Ba(OH)2','Ba(OH)₂','Barium hydroxide','base'],
+    ['氫氧化銨','NH4OH','NH₄OH','Ammonium hydroxide','base'],
+
+    // 鹽類 salts
+    ['食鹽(氯化鈉)','NaCl','NaCl','Sodium chloride','salt'],
+    ['氯化鉀','KCl','KCl','Potassium chloride','salt'],
+    ['氯化鈣','CaCl2','CaCl₂','Calcium chloride','salt'],
+    ['氯化鎂','MgCl2','MgCl₂','Magnesium chloride','salt'],
+    ['氯化銨','NH4Cl','NH₄Cl','Ammonium chloride','salt'],
+    ['氯化鐵','FeCl3','FeCl₃','Iron(III) chloride','salt'],
+    ['氯化亞鐵','FeCl2','FeCl₂','Iron(II) chloride','salt'],
+    ['氯化銅','CuCl2','CuCl₂','Copper(II) chloride','salt'],
+    ['氯化亞銅','CuCl','CuCl','Copper(I) chloride','salt'],
+    ['碘化銀','AgI','AgI','Silver iodide','salt'],
+    ['溴化鋅','ZnBr2','ZnBr₂','Zinc bromide','salt'],
+    ['氟化鈣(螢石)','CaF2','CaF₂','Calcium fluoride','salt'],
+    ['氮化鎂','Mg3N2','Mg₃N₂','Magnesium nitride','salt'],
+    ['硫化亞鐵','FeS','FeS','Iron(II) sulfide','salt'],
+    ['硫化汞','HgS','HgS','Mercury(II) sulfide','salt'],
+    ['碳酸鈣(石灰石/大理石)','CaCO3','CaCO₃','Calcium carbonate','salt'],
+    ['碳酸鈉(蘇打)','Na2CO3','Na₂CO₃','Sodium carbonate','salt'],
+    ['碳酸氫鈉(小蘇打)','NaHCO3','NaHCO₃','Sodium bicarbonate','salt'],
+    ['硫酸鉀','K2SO4','K₂SO₄','Potassium sulfate','salt'],
+    ['硫酸鈉','Na2SO4','Na₂SO₄','Sodium sulfate','salt'],
+    ['硫酸銅','CuSO4','CuSO₄','Copper(II) sulfate','salt'],
+    ['硫酸鋅','ZnSO4','ZnSO₄','Zinc sulfate','salt'],
+    ['硫酸鋁','Al2(SO4)3','Al₂(SO₄)₃','Aluminum sulfate','salt'],
+    ['硫酸鈣(石膏)','CaSO4','CaSO₄','Calcium sulfate','salt'],
+    ['硝酸鉀','KNO3','KNO₃','Potassium nitrate','salt'],
+    ['硝酸鎂','Mg(NO3)2','Mg(NO₃)₂','Magnesium nitrate','salt'],
+    ['硝酸銀','AgNO3','AgNO₃','Silver nitrate','salt'],
+    ['硝酸亞鐵','Fe(NO3)2','Fe(NO₃)₂','Iron(II) nitrate','salt'],
+    ['磷酸鈣','Ca3(PO4)2','Ca₃(PO₄)₂','Calcium phosphate','salt'],
+    ['醋酸銀','CH3COOAg','CH₃COOAg','Silver acetate','salt'],
+    ['過錳酸鉀','KMnO4','KMnO₄','Potassium permanganate','salt'],
+    ['重鉻酸鉀','K2Cr2O7','K₂Cr₂O₇','Potassium dichromate','salt'],
+
+    // 有機物 organic
+    ['葡萄糖','C6H12O6','C₆H₁₂O₆','Glucose','organic'],
+    ['果糖','C6H12O6','C₆H₁₂O₆','Fructose','organic'],
+    ['蔗糖(冰糖)','C12H22O11','C₁₂H₂₂O₁₁','Sucrose','organic'],
+    ['酒精(乙醇)','C2H5OH','C₂H₅OH','Ethanol','organic'],
+    ['甲醇','CH3OH','CH₃OH','Methanol','organic'],
+    ['尿素','CO(NH2)2','CO(NH₂)₂','Urea','organic'],
+    ['乙烯','C2H4','C₂H₄','Ethylene','organic'],
+    ['乙炔','C2H2','C₂H₂','Acetylene','organic'],
+    ['苯','C6H6','C₆H₆','Benzene','organic'],
+    ['丙酮','C3H6O','C₃H₆O','Acetone','organic'],
+    ['乙酸乙酯','CH3COOC2H5','CH₃COOC₂H₅','Ethyl acetate','organic']
+  ];
+
+  const FORMULA_CAT_META = {
+    oxide: { label: '氧化物', color: 'var(--fcat-oxide)' },
+    hydride: { label: '氫化物', color: 'var(--fcat-hydride)' },
+    acid: { label: '酸', color: 'var(--fcat-acid)' },
+    base: { label: '鹼', color: 'var(--fcat-base)' },
+    salt: { label: '鹽類', color: 'var(--fcat-salt)' },
+    organic: { label: '有機物', color: 'var(--fcat-organic)' }
+  };
+  const FORMULA_CAT_ORDER = ['oxide', 'hydride', 'acid', 'base', 'salt', 'organic'];
+
+  function normalizeFormula(s) {
+    return s.replace(/\s+/g, '').toLowerCase();
+  }
+
   const NONMETALS = new Set([1,2,6,7,8,9,10,15,16,17,18,34,35,36,53,54,86]);
   const METALLOIDS = new Set([5,14,32,33,51,52,84,85]);
 
@@ -755,6 +963,19 @@
   const statAnsweredC = document.getElementById('statAnsweredC');
   const statCorrectC = document.getElementById('statCorrectC');
   const statAccuracyC = document.getElementById('statAccuracyC');
+  const fCatChipRow = document.getElementById('fCatChipRow');
+  const formulaStartBtn = document.getElementById('formulaStartBtn');
+  const formulaName = document.getElementById('formulaName');
+  const formulaEn = document.getElementById('formulaEn');
+  const revealF = document.getElementById('revealF');
+  const formulaInput = document.getElementById('formulaInput');
+  const submitBtnF = document.getElementById('submitBtnF');
+  const nextBtnF = document.getElementById('nextBtnF');
+  const speakBtnF = document.getElementById('speakBtnF');
+  const quizLabelF = document.getElementById('quizLabelF');
+  const statAnsweredF = document.getElementById('statAnsweredF');
+  const statCorrectF = document.getElementById('statCorrectF');
+  const statAccuracyF = document.getElementById('statAccuracyF');
 
   function computePeriod(z) {
     if (z <= 2) return 1;
@@ -928,7 +1149,7 @@
   }
 
   // ---- quiz ----
-  const HOME_SCREENS = ['screenTable', 'screenClassifySetup'];
+  const HOME_SCREENS = ['screenTable', 'screenClassifySetup', 'screenFormulaSetup'];
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1203,9 +1424,201 @@
   speakBtn.addEventListener('click', speakName);
   langBtn.addEventListener('click', toggleLang);
 
+  // ---- formula practice ----
+  let selectedFCats = new Set(FORMULA_CAT_ORDER);
+  try {
+    const saved = JSON.parse(localStorage.getItem('formulaCats') || 'null');
+    if (Array.isArray(saved) && saved.length) selectedFCats = new Set(saved.filter(k => FORMULA_CAT_ORDER.includes(k)));
+  } catch (_) {}
+
+  function buildFCatChips() {
+    const frag = document.createDocumentFragment();
+    FORMULA_CAT_ORDER.forEach(key => {
+      const meta = FORMULA_CAT_META[key];
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'cat-chip';
+      chip.dataset.cat = key;
+      chip.innerHTML = '<span class="dot" style="background:' + meta.color + '"></span>' + meta.label;
+      frag.appendChild(chip);
+    });
+    fCatChipRow.appendChild(frag);
+  }
+
+  function renderFCatChips() {
+    fCatChipRow.querySelectorAll('.cat-chip').forEach(c => c.classList.toggle('off', !selectedFCats.has(c.dataset.cat)));
+    const n = FORMULAS.filter(f => selectedFCats.has(f[4])).length;
+    formulaStartBtn.disabled = n === 0;
+    formulaStartBtn.innerHTML = n === 0 ? '開始練習' : '開始練習 · <b>' + n + '</b> 題';
+    try { localStorage.setItem('formulaCats', JSON.stringify([...selectedFCats])); } catch (_) {}
+  }
+
+  fCatChipRow.addEventListener('click', (e) => {
+    const chip = e.target.closest('.cat-chip');
+    if (!chip) return;
+    const key = chip.dataset.cat;
+    if (selectedFCats.has(key)) {
+      if (selectedFCats.size === 1) return;
+      selectedFCats.delete(key);
+    } else {
+      selectedFCats.add(key);
+    }
+    renderFCatChips();
+  });
+
+  buildFCatChips();
+  renderFCatChips();
+
+  let formulaPool = FORMULAS;
+  let currentFormula = null;
+  let formulaAnswered = false;
+  let formulaAdvanceTimer = null;
+  let formulaLastIndex = -1;
+  const statsF = { answered: 0, correct: 0 };
+
+  function pickFormula() {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * formulaPool.length);
+    } while (idx === formulaLastIndex && formulaPool.length > 1);
+    formulaLastIndex = idx;
+    return formulaPool[idx];
+  }
+
+  function updateStatsF() {
+    statAnsweredF.textContent = statsF.answered;
+    statCorrectF.textContent = statsF.correct;
+    statAccuracyF.textContent = statsF.answered ? Math.round(statsF.correct / statsF.answered * 100) + '%' : '—';
+  }
+
+  function speakFormulaName() {
+    if (!synth || !currentFormula) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(currentFormula[0].replace(/[（(].*?[)）]/g, ''));
+    u.lang = 'zh-TW';
+    u.rate = 0.85;
+    const voice = pickVoice('zh');
+    if (voice) u.voice = voice;
+    u.onstart = () => speakBtnF.classList.add('speaking');
+    u.onend = u.onerror = () => speakBtnF.classList.remove('speaking');
+    synth.speak(u);
+  }
+  if (!synth) speakBtnF.hidden = true;
+
+  function clearFeedbackF() {
+    revealF.classList.remove('show');
+    revealF.textContent = '';
+    formulaInput.classList.remove('correct', 'wrong');
+    submitBtnF.classList.remove('wrong-state');
+    submitBtnF.textContent = '送出';
+  }
+
+  function nextFormulaQuestion() {
+    if (formulaAdvanceTimer) { clearTimeout(formulaAdvanceTimer); formulaAdvanceTimer = null; }
+    currentFormula = pickFormula();
+    formulaName.textContent = currentFormula[0];
+    formulaEn.textContent = currentFormula[3];
+    formulaInput.value = '';
+    formulaInput.readOnly = false;
+    clearFeedbackF();
+    formulaAnswered = false;
+    formulaInput.focus();
+  }
+
+  function resetFormulaCurrent() {
+    if (formulaAdvanceTimer) { clearTimeout(formulaAdvanceTimer); formulaAdvanceTimer = null; }
+    formulaInput.value = '';
+    formulaInput.readOnly = false;
+    clearFeedbackF();
+    formulaAnswered = false;
+    formulaInput.focus();
+  }
+
+  function submitFormula() {
+    if (formulaAnswered || !currentFormula) return;
+    const raw = formulaInput.value.trim();
+    if (!raw) {
+      formulaInput.classList.add('wrong');
+      setTimeout(() => formulaInput.classList.remove('wrong'), 300);
+      return;
+    }
+
+    formulaAnswered = true;
+    formulaInput.readOnly = true;
+    statsF.answered++;
+
+    if (normalizeFormula(raw) === normalizeFormula(currentFormula[1])) {
+      statsF.correct++;
+      formulaInput.classList.add('correct');
+      revealF.textContent = '✓ ' + currentFormula[2];
+      revealF.classList.add('show');
+      submitBtnF.textContent = '✓ 正確';
+      formulaAdvanceTimer = setTimeout(nextFormulaQuestion, 900);
+    } else {
+      formulaInput.classList.add('wrong');
+      revealF.textContent = '✗ 正確答案：' + currentFormula[2];
+      revealF.classList.add('show');
+      submitBtnF.classList.add('wrong-state');
+      submitBtnF.textContent = '再試一次';
+    }
+
+    updateStatsF();
+  }
+
+  function startFormulaSession(pool) {
+    formulaPool = pool;
+    quizLabelF.textContent = pool.length === FORMULAS.length ? '化學式 · 全部 ' + pool.length + ' 題' : '化學式 · 已選 ' + pool.length + ' 題';
+    statsF.answered = 0;
+    statsF.correct = 0;
+    updateStatsF();
+    formulaLastIndex = -1;
+    showScreen('screenFormulaQuiz');
+    nextFormulaQuestion();
+  }
+
+  formulaStartBtn.addEventListener('click', () => {
+    const pool = FORMULAS.filter(f => selectedFCats.has(f[4]));
+    if (!pool.length) return;
+    startFormulaSession(pool);
+  });
+
+  document.getElementById('screenFormulaQuiz').querySelectorAll('.quick-btn[data-ins]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (formulaAnswered) return;
+      formulaInput.value += btn.dataset.ins;
+      formulaInput.focus();
+    });
+  });
+
+  document.getElementById('formulaBackspace').addEventListener('click', () => {
+    if (formulaAnswered) return;
+    formulaInput.value = formulaInput.value.slice(0, -1);
+    formulaInput.focus();
+  });
+
+  document.getElementById('formulaClear').addEventListener('click', resetFormulaCurrent);
+  submitBtnF.addEventListener('click', submitFormula);
+  nextBtnF.addEventListener('click', nextFormulaQuestion);
+  speakBtnF.addEventListener('click', speakFormulaName);
+
+  formulaInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (formulaAnswered) nextFormulaQuestion();
+    else submitFormula();
+  });
+
+  document.getElementById('backBtnF').addEventListener('click', () => {
+    if (formulaAdvanceTimer) { clearTimeout(formulaAdvanceTimer); formulaAdvanceTimer = null; }
+    if (synth) synth.cancel();
+    showScreen('screenFormulaSetup');
+  });
+
   document.addEventListener('keydown', (e) => {
     const quizActive = document.getElementById('screenQuiz').classList.contains('active');
     const classifyActive = document.getElementById('screenClassifyQuiz').classList.contains('active');
+    const formulaActive = document.getElementById('screenFormulaQuiz').classList.contains('active');
+    if (formulaActive) return;
     if (!quizActive && !classifyActive) return;
 
     if (classifyActive) {
