@@ -16,6 +16,10 @@
     --metal: #e4e7ef;
     --metalloid: #d9ecd6;
     --nonmetal: #fdf0bd;
+    --cls-element: #c9d6ff;
+    --cls-compound: #ffe3a3;
+    --cls-solution: #bfe6c4;
+    --cls-mixture: #f6c6c6;
   }
 
   * { box-sizing: border-box; }
@@ -94,6 +98,71 @@
   .lang-btn span.on { color: var(--text); }
   .lang-btn .sep { color: var(--line); font-weight: 400; }
   .lang-btn:active { border-color: var(--line-strong); }
+
+  /* ---- mode tabs ---- */
+  .mode-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .mode-tabs.hidden { display: none; }
+  .mode-tab {
+    flex: 1;
+    padding: 11px 0;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .mode-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  /* ---- classify setup ---- */
+  .cat-chip-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 4px; }
+  .cat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .cat-chip .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .cat-chip.off { color: var(--text-faint); border-color: var(--line); }
+  .cat-chip.off .dot { opacity: 0.35; }
+
+  /* ---- classify quiz ---- */
+  .classify-name { font-size: 32px; font-weight: 600; line-height: 1.3; word-break: keep-all; }
+  .classify-en { margin-top: 6px; font-size: 13px; color: var(--text-dim); }
+  .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 26px; }
+  .cat-btn {
+    padding: 18px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+  }
+  .cat-btn:active { border-color: var(--line-strong); }
+  .cat-btn.correct { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .cat-btn.wrong { border-color: var(--line-strong); opacity: 0.55; text-decoration: line-through; }
+  .btn-next-wide { flex: 1; gap: 8px; }
+  .btn-next-wide svg { width: 18px; height: 18px; }
 
   /* ---- periodic table picker ---- */
   .pt-top {
@@ -392,6 +461,11 @@
 <body>
 <div class="app wide">
 
+  <div class="mode-tabs" id="modeTabs">
+    <button class="mode-tab active" data-target="screenTable">原子序練習</button>
+    <button class="mode-tab" data-target="screenClassifySetup">物質分類練習</button>
+  </div>
+
   <!-- Screen A: periodic table picker -->
   <div class="screen active" id="screenTable">
     <div class="pt-top">
@@ -414,6 +488,21 @@
         <span><i class="nm"></i>非金屬</span>
       </div>
       <button class="btn btn-primary" id="startBtn" disabled>開始練習</button>
+    </div>
+  </div>
+
+  <!-- Screen A2: classification practice setup -->
+  <div class="screen" id="screenClassifySetup">
+    <div class="pt-top">
+      <div>
+        <div class="title">物質分類練習</div>
+        <div class="hint">判斷每個物質屬於元素、化合物、溶液，還是其他混合物</div>
+      </div>
+    </div>
+    <div class="cat-chip-row" id="catChipRow"></div>
+    <div class="pt-foot">
+      <span></span>
+      <button class="btn btn-primary" id="classifyStartBtn">開始練習</button>
     </div>
   </div>
 
@@ -475,6 +564,48 @@
     </div>
   </div>
 
+  <!-- Screen C: classification quiz -->
+  <div class="screen" id="screenClassifyQuiz">
+    <div class="sub-header">
+      <button class="back-btn" id="backBtnC">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        返回
+      </button>
+      <span class="sub-title" id="quizLabelC"></span>
+      <span></span>
+    </div>
+    <div class="card">
+      <div class="name-row">
+        <div class="classify-name" id="classifyName">—</div>
+        <button class="speak-btn" id="speakBtnC" aria-label="發音" title="發音">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        </button>
+      </div>
+      <div class="classify-en" id="classifyEn"></div>
+      <div class="reveal" id="revealC"></div>
+
+      <div class="cat-grid" id="catGrid">
+        <button class="cat-btn" data-cat="element">元素</button>
+        <button class="cat-btn" data-cat="compound">化合物</button>
+        <button class="cat-btn" data-cat="solution">溶液</button>
+        <button class="cat-btn" data-cat="mixture">其他混合物</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-next btn-next-wide" id="nextBtnC">
+          下一題
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div>已作答 <b id="statAnsweredC">0</b></div>
+      <div>答對 <b id="statCorrectC">0</b></div>
+      <div>正確率 <b id="statAccuracyC">—</b></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -493,6 +624,34 @@
     ['錒',89,3,'Ac','Actinium'],['釷',90,'Ac','Th','Thorium'],['鏷',91,'Ac','Pa','Protactinium'],['鈾',92,'Ac','U','Uranium'],['錼',93,'Ac','Np','Neptunium'],['鈽',94,'Ac','Pu','Plutonium'],['鋂',95,'Ac','Am','Americium'],['鋦',96,'Ac','Cm','Curium'],['鉳',97,'Ac','Bk','Berkelium'],['鉲',98,'Ac','Cf','Californium'],['鑀',99,'Ac','Es','Einsteinium'],['鐨',100,'Ac','Fm','Fermium'],['鍆',101,'Ac','Md','Mendelevium'],['鍩',102,'Ac','No','Nobelium'],['鐒',103,'Ac','Lr','Lawrencium'],
     ['鑪',104,4,'Rf','Rutherfordium'],['𨧀',105,5,'Db','Dubnium'],['𨭎',106,6,'Sg','Seaborgium'],['𨨏',107,7,'Bh','Bohrium'],['𨭆',108,8,'Hs','Hassium'],['鿏',109,9,'Mt','Meitnerium'],['鐽',110,10,'Ds','Darmstadtium'],['錀',111,11,'Rg','Roentgenium'],['鎶',112,12,'Cn','Copernicium'],['鉨',113,13,'Nh','Nihonium'],['鈇',114,14,'Fl','Flerovium'],['鏌',115,15,'Mc','Moscovium'],['鉝',116,16,'Lv','Livermorium'],['鿬',117,17,'Ts','Tennessine'],['鿫',118,18,'Og','Oganesson']
   ];
+
+  // ---- classification practice: [Chinese name, English name, category] ----
+  // category: 'element' | 'compound' | 'solution' (homogeneous mixture) | 'mixture' (heterogeneous)
+  const SUBSTANCES = [
+    ['金','Gold','element'],['銀','Silver','element'],['銅線','Copper wire','element'],['鐵釘','Iron nail','element'],
+    ['鋁箔','Aluminum foil','element'],['氧氣 (O₂)','Oxygen gas','element'],['氮氣 (N₂)','Nitrogen gas','element'],['氦氣','Helium gas','element'],
+    ['氬氣','Argon gas','element'],['鑽石','Diamond (carbon)','element'],['石墨','Graphite (carbon)','element'],['水銀(汞)','Mercury','element'],
+
+    ['水 (H₂O)','Water','compound'],['二氧化碳 (CO₂)','Carbon dioxide','compound'],['純氯化鈉','Sodium chloride (pure)','compound'],['純葡萄糖','Glucose (pure)','compound'],
+    ['純酒精(乙醇)','Ethanol (pure)','compound'],['小蘇打(碳酸氫鈉)','Baking soda','compound'],['氨氣 (NH₃)','Ammonia','compound'],['純過氧化氫','Hydrogen peroxide (pure)','compound'],
+    ['石英(二氧化矽)','Quartz','compound'],['碳酸鈣','Calcium carbonate','compound'],['純醋酸(冰醋酸)','Acetic acid (pure)','compound'],['甲烷 (CH₄)','Methane','compound'],
+
+    ['鹽水','Salt water','solution'],['糖水','Sugar water','solution'],['海水','Seawater','solution'],['空氣','Air','solution'],
+    ['汽水','Soda','solution'],['食用醋','Vinegar','solution'],['生理食鹽水','Saline solution','solution'],['黃銅','Brass','solution'],
+    ['不鏽鋼','Stainless steel','solution'],['運動飲料','Sports drink','solution'],['葡萄酒','Wine','solution'],['漂白水','Bleach solution','solution'],
+
+    ['泥漿','Mud','mixture'],['花崗岩','Granite','mixture'],['什錦沙拉','Mixed salad','mixture'],['什錦堅果','Mixed nuts','mixture'],
+    ['巧克力豆餅乾','Chocolate chip cookie','mixture'],['混凝土','Concrete','mixture'],['沙子與鐵粉混合物','Sand and iron filings','mixture'],['什錦穀片','Cereal mix','mixture'],
+    ['含果肉果汁','Orange juice with pulp','mixture'],['什錦水果罐頭','Fruit cocktail','mixture'],['味噌湯(含料)','Miso soup with solids','mixture'],['沙礫','Gravel and sand','mixture']
+  ];
+
+  const CAT_META = {
+    element: { label: '元素', color: 'var(--cls-element)' },
+    compound: { label: '化合物', color: 'var(--cls-compound)' },
+    solution: { label: '溶液', color: 'var(--cls-solution)' },
+    mixture: { label: '其他混合物', color: 'var(--cls-mixture)' }
+  };
+  const CAT_ORDER = ['element', 'compound', 'solution', 'mixture'];
 
   const NONMETALS = new Set([1,2,6,7,8,9,10,15,16,17,18,34,35,36,53,54,86]);
   const METALLOIDS = new Set([5,14,32,33,51,52,84,85]);
@@ -532,6 +691,19 @@
   const langBtn = document.getElementById('langBtn');
   const langZh = document.getElementById('langZh');
   const langEn = document.getElementById('langEn');
+  const modeTabs = document.getElementById('modeTabs');
+  const catChipRow = document.getElementById('catChipRow');
+  const classifyStartBtn = document.getElementById('classifyStartBtn');
+  const classifyName = document.getElementById('classifyName');
+  const classifyEn = document.getElementById('classifyEn');
+  const revealC = document.getElementById('revealC');
+  const catGrid = document.getElementById('catGrid');
+  const nextBtnC = document.getElementById('nextBtnC');
+  const speakBtnC = document.getElementById('speakBtnC');
+  const quizLabelC = document.getElementById('quizLabelC');
+  const statAnsweredC = document.getElementById('statAnsweredC');
+  const statCorrectC = document.getElementById('statCorrectC');
+  const statAccuracyC = document.getElementById('statAccuracyC');
 
   function computePeriod(z) {
     if (z <= 2) return 1;
@@ -705,11 +877,23 @@
   }
 
   // ---- quiz ----
+  const HOME_SCREENS = ['screenTable', 'screenClassifySetup'];
+
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     app.classList.toggle('wide', id === 'screenTable');
+    const isHome = HOME_SCREENS.includes(id);
+    modeTabs.classList.toggle('hidden', !isHome);
+    if (isHome) {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.target === id));
+    }
   }
+
+  modeTabs.addEventListener('click', (e) => {
+    const tab = e.target.closest('.mode-tab');
+    if (tab) showScreen(tab.dataset.target);
+  });
 
   function pickElement() {
     let idx;
@@ -801,6 +985,154 @@
     showScreen('screenTable');
   });
 
+  // ---- classification practice ----
+  let selectedCats = new Set(CAT_ORDER);
+  try {
+    const saved = JSON.parse(localStorage.getItem('classifyCats') || 'null');
+    if (Array.isArray(saved) && saved.length) selectedCats = new Set(saved.filter(k => CAT_ORDER.includes(k)));
+  } catch (_) {}
+
+  function buildCatChips() {
+    const frag = document.createDocumentFragment();
+    CAT_ORDER.forEach(key => {
+      const meta = CAT_META[key];
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'cat-chip';
+      chip.dataset.cat = key;
+      chip.innerHTML = '<span class="dot" style="background:' + meta.color + '"></span>' + meta.label;
+      frag.appendChild(chip);
+    });
+    catChipRow.appendChild(frag);
+  }
+
+  function renderCatChips() {
+    catChipRow.querySelectorAll('.cat-chip').forEach(c => c.classList.toggle('off', !selectedCats.has(c.dataset.cat)));
+    const n = SUBSTANCES.filter(s => selectedCats.has(s[2])).length;
+    classifyStartBtn.disabled = n === 0;
+    classifyStartBtn.innerHTML = n === 0 ? '開始練習' : '開始練習 · <b>' + n + '</b> 題';
+    try { localStorage.setItem('classifyCats', JSON.stringify([...selectedCats])); } catch (_) {}
+  }
+
+  catChipRow.addEventListener('click', (e) => {
+    const chip = e.target.closest('.cat-chip');
+    if (!chip) return;
+    const key = chip.dataset.cat;
+    if (selectedCats.has(key)) {
+      if (selectedCats.size === 1) return;
+      selectedCats.delete(key);
+    } else {
+      selectedCats.add(key);
+    }
+    renderCatChips();
+  });
+
+  buildCatChips();
+  renderCatChips();
+
+  let classifyPool = SUBSTANCES;
+  let currentSub = null;
+  let classifyAnswered = false;
+  let classifyAdvanceTimer = null;
+  let classifyLastIndex = -1;
+  const statsC = { answered: 0, correct: 0 };
+
+  function pickSubstance() {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * classifyPool.length);
+    } while (idx === classifyLastIndex && classifyPool.length > 1);
+    classifyLastIndex = idx;
+    return classifyPool[idx];
+  }
+
+  function updateStatsC() {
+    statAnsweredC.textContent = statsC.answered;
+    statCorrectC.textContent = statsC.correct;
+    statAccuracyC.textContent = statsC.answered ? Math.round(statsC.correct / statsC.answered * 100) + '%' : '—';
+  }
+
+  function speakSubstance() {
+    if (!synth || !currentSub) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(currentSub[0].replace(/[（(].*?[)）]/g, ''));
+    u.lang = 'zh-TW';
+    u.rate = 0.85;
+    const voice = pickVoice('zh');
+    if (voice) u.voice = voice;
+    u.onstart = () => speakBtnC.classList.add('speaking');
+    u.onend = u.onerror = () => speakBtnC.classList.remove('speaking');
+    synth.speak(u);
+  }
+  if (!synth) speakBtnC.hidden = true;
+
+  function classifyNextQuestion() {
+    if (classifyAdvanceTimer) { clearTimeout(classifyAdvanceTimer); classifyAdvanceTimer = null; }
+    currentSub = pickSubstance();
+    classifyName.textContent = currentSub[0];
+    classifyEn.textContent = currentSub[1];
+    revealC.classList.remove('show');
+    revealC.textContent = '';
+    catGrid.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('correct', 'wrong'));
+    classifyAnswered = false;
+  }
+
+  function classifySubmit(catKey) {
+    if (classifyAnswered || !currentSub) return;
+    classifyAnswered = true;
+    statsC.answered++;
+
+    const btn = catGrid.querySelector('.cat-btn[data-cat="' + catKey + '"]');
+    const correctBtn = catGrid.querySelector('.cat-btn[data-cat="' + currentSub[2] + '"]');
+
+    if (catKey === currentSub[2]) {
+      statsC.correct++;
+      btn.classList.add('correct');
+      revealC.textContent = '✓ ' + CAT_META[catKey].label;
+      revealC.classList.add('show');
+      classifyAdvanceTimer = setTimeout(classifyNextQuestion, 800);
+    } else {
+      btn.classList.add('wrong');
+      correctBtn.classList.add('correct');
+      revealC.textContent = '✗ 正確答案：' + CAT_META[currentSub[2]].label;
+      revealC.classList.add('show');
+    }
+
+    updateStatsC();
+  }
+
+  function startClassifySession(pool) {
+    classifyPool = pool;
+    quizLabelC.textContent = pool.length === SUBSTANCES.length ? '物質分類 · 全部 ' + pool.length + ' 題' : '物質分類 · 已選 ' + pool.length + ' 題';
+    statsC.answered = 0;
+    statsC.correct = 0;
+    updateStatsC();
+    classifyLastIndex = -1;
+    showScreen('screenClassifyQuiz');
+    classifyNextQuestion();
+  }
+
+  classifyStartBtn.addEventListener('click', () => {
+    const pool = SUBSTANCES.filter(s => selectedCats.has(s[2]));
+    if (!pool.length) return;
+    startClassifySession(pool);
+  });
+
+  catGrid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.cat-btn');
+    if (!btn) return;
+    classifySubmit(btn.dataset.cat);
+  });
+
+  nextBtnC.addEventListener('click', classifyNextQuestion);
+  speakBtnC.addEventListener('click', speakSubstance);
+
+  document.getElementById('backBtnC').addEventListener('click', () => {
+    if (classifyAdvanceTimer) { clearTimeout(classifyAdvanceTimer); classifyAdvanceTimer = null; }
+    if (synth) synth.cancel();
+    showScreen('screenClassifySetup');
+  });
+
   keypad.addEventListener('click', (e) => {
     const key = e.target.closest('.key');
     if (!key || answered) return;
@@ -822,7 +1154,20 @@
 
   document.addEventListener('keydown', (e) => {
     const quizActive = document.getElementById('screenQuiz').classList.contains('active');
-    if (!quizActive) return;
+    const classifyActive = document.getElementById('screenClassifyQuiz').classList.contains('active');
+    if (!quizActive && !classifyActive) return;
+
+    if (classifyActive) {
+      if (classifyAnswered) {
+        if (e.key === 'Enter') classifyNextQuestion();
+        return;
+      }
+      if (e.key >= '1' && e.key <= '4') {
+        classifySubmit(CAT_ORDER[+e.key - 1]);
+      }
+      return;
+    }
+
     if (answered) {
       if (e.key === 'Enter') nextQuestion();
       return;
