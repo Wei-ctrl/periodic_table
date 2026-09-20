@@ -23,12 +23,14 @@ Answers are entered on an on-screen numpad. A correct answer briefly reveals the
 
 ### 物質分類練習 (substance classification practice)
 
-A bank of 48 everyday substances (12 each), shown with both their Chinese name and English translation, drilled against four categories:
+A 185-item bank covering the standard 國中 curriculum, shown with both their Chinese name and English translation, drilled against four categories:
 
-- **元素** (element) — e.g. 金, 氧氣, 鑽石
-- **化合物** (compound) — e.g. 水, 二氧化碳, 純氯化鈉
-- **溶液** (solution, a homogeneous mixture) — e.g. 鹽水, 海水, 空氣, 黃銅
-- **其他混合物** (other, heterogeneous mixture) — e.g. 花崗岩, 什錦沙拉, 混凝土
+- **元素** (element, 49 items) — gases (氫氣, 氦, 氯氣…), liquids (溴, 汞), solid nonmetals (碘, 矽, 鑽石…), and metals (鈉, 鐵, 24K金…)
+- **化合物** (compound, 89 items) — oxides, acids, bases, salts, and organic compounds (水, 二氧化碳, 硫酸, 氫氧化鈉, 食鹽, 葡萄糖…)
+- **溶液** (solution, a homogeneous mixture, 33 items) — aqueous solutions, gas mixtures, and alloys (鹽水, 空氣, 黃銅, 不鏽鋼…)
+- **其他混合物** (other, heterogeneous mixture, 14 items) — 牛奶, 泥沙水, 花崗岩, 土壤…
+
+The set deliberately includes the classic 純物質 vs 混合物 "trap pairs" that sound alike but aren't — 過氧化氫 (compound) vs 雙氧水 (solution), 氯化氫 (compound) vs 鹽酸 (solution), 24K金 (element) vs 14K金 (solution alloy), 蒸餾水 (compound) vs 自來水 (solution), and more.
 
 Toggle which categories to include with the colored chips (at least one must stay selected), then tap the matching category button for each item — or press **1**–**4** on a keyboard. A correct answer auto-advances; a wrong one highlights the right category and waits for **下一題**.
 
