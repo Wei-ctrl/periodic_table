@@ -161,7 +161,7 @@
   .cat-btn:active { border-color: var(--line-strong); }
   .cat-btn.correct { background: var(--text); color: var(--bg); border-color: var(--text); }
   .cat-btn.wrong { border-color: var(--line-strong); opacity: 0.55; text-decoration: line-through; }
-  .btn-next-wide { flex: 1; gap: 8px; }
+  .btn-next.btn-next-wide { flex: 1; gap: 8px; }
   .btn-next-wide svg { width: 18px; height: 18px; }
 
   /* ---- periodic table picker ---- */
@@ -628,21 +628,72 @@
   // ---- classification practice: [Chinese name, English name, category] ----
   // category: 'element' | 'compound' | 'solution' (homogeneous mixture) | 'mixture' (heterogeneous)
   const SUBSTANCES = [
-    ['金','Gold','element'],['銀','Silver','element'],['銅線','Copper wire','element'],['鐵釘','Iron nail','element'],
-    ['鋁箔','Aluminum foil','element'],['氧氣 (O₂)','Oxygen gas','element'],['氮氣 (N₂)','Nitrogen gas','element'],['氦氣','Helium gas','element'],
-    ['氬氣','Argon gas','element'],['鑽石','Diamond (carbon)','element'],['石墨','Graphite (carbon)','element'],['水銀(汞)','Mercury','element'],
+    // 元素 Elements — 氣體
+    ['氫氣 (H₂)','Hydrogen gas','element'],['氧氣 (O₂)','Oxygen gas','element'],['氮氣 (N₂)','Nitrogen gas','element'],['臭氧 (O₃)','Ozone','element'],
+    ['氟氣 (F₂)','Fluorine gas','element'],['氯氣 (Cl₂)','Chlorine gas','element'],['氦 (He)','Helium','element'],['氖 (Ne)','Neon','element'],
+    ['氬 (Ar)','Argon','element'],['氪 (Kr)','Krypton','element'],['氙 (Xe)','Xenon','element'],
+    // 元素 — 液體
+    ['溴 (Br₂)','Bromine (only liquid nonmetal)','element'],['汞/水銀 (Hg)','Mercury (only liquid metal)','element'],
+    // 元素 — 固態非金屬
+    ['碘 (I₂)','Iodine','element'],['硫磺 (S₈)','Sulfur','element'],['白磷/紅磷 (P₄)','Phosphorus (white/red)','element'],['石墨 (C)','Graphite','element'],
+    ['金剛石/鑽石 (C)','Diamond','element'],['C₆₀ (富勒烯)','Buckminsterfullerene (C60)','element'],['矽 (Si)','Silicon','element'],['硼 (B)','Boron','element'],
+    ['砷 (As)','Arsenic','element'],['碲 (Te)','Tellurium','element'],['銻 (Sb)','Antimony','element'],['鍺 (Ge)','Germanium','element'],
+    // 元素 — 金屬
+    ['鋰 (Li)','Lithium','element'],['鈉 (Na)','Sodium','element'],['鉀 (K)','Potassium','element'],['銣 (Rb)','Rubidium','element'],
+    ['銫 (Cs)','Cesium','element'],['鈹 (Be)','Beryllium','element'],['鎂 (Mg)','Magnesium','element'],['鈣 (Ca)','Calcium','element'],
+    ['鍶 (Sr)','Strontium','element'],['鋇 (Ba)','Barium','element'],['鋁 (Al)','Aluminum','element'],['鐵 (Fe)','Iron','element'],
+    ['銅 (Cu)','Copper','element'],['鋅 (Zn)','Zinc','element'],['銀 (Ag)','Silver','element'],['24K金 (Au)','24K gold (pure gold)','element'],
+    ['白金/鉑 (Pt)','Platinum','element'],['鉛 (Pb)','Lead','element'],['錫 (Sn)','Tin','element'],['鎳 (Ni)','Nickel','element'],
+    ['鉻 (Cr)','Chromium','element'],['錳 (Mn)','Manganese','element'],['鈦 (Ti)','Titanium','element'],['鈾 (U)','Uranium','element'],
 
-    ['水 (H₂O)','Water','compound'],['二氧化碳 (CO₂)','Carbon dioxide','compound'],['純氯化鈉','Sodium chloride (pure)','compound'],['純葡萄糖','Glucose (pure)','compound'],
-    ['純酒精(乙醇)','Ethanol (pure)','compound'],['小蘇打(碳酸氫鈉)','Baking soda','compound'],['氨氣 (NH₃)','Ammonia','compound'],['純過氧化氫','Hydrogen peroxide (pure)','compound'],
-    ['石英(二氧化矽)','Quartz','compound'],['碳酸鈣','Calcium carbonate','compound'],['純醋酸(冰醋酸)','Acetic acid (pure)','compound'],['甲烷 (CH₄)','Methane','compound'],
+    // 化合物 Compounds — 氧化物
+    ['一氧化碳 (CO)','Carbon monoxide','compound'],['二氧化碳 (CO₂)','Carbon dioxide','compound'],['乾冰 (固態CO₂)','Dry ice (solid CO₂)','compound'],['二氧化硫 (SO₂)','Sulfur dioxide','compound'],
+    ['三氧化硫 (SO₃)','Sulfur trioxide','compound'],['一氧化氮 (NO)','Nitric oxide','compound'],['二氧化氮 (NO₂)','Nitrogen dioxide','compound'],['五氧化二磷 (P₂O₅)','Phosphorus pentoxide','compound'],
+    ['二氧化矽/石英 (SiO₂)','Silicon dioxide (quartz)','compound'],['氧化鋁 (Al₂O₃)','Aluminum oxide','compound'],['氧化鐵 (Fe₂O₃)','Iron(III) oxide','compound'],['氧化亞鐵 (FeO)','Iron(II) oxide','compound'],
+    ['四氧化三鐵 (Fe₃O₄)','Iron(II,III) oxide (magnetite)','compound'],['氧化銅 (CuO)','Copper(II) oxide','compound'],['氧化亞銅 (Cu₂O)','Copper(I) oxide','compound'],['氧化鈣/生石灰 (CaO)','Calcium oxide (quicklime)','compound'],
+    ['氧化鎂 (MgO)','Magnesium oxide','compound'],['過氧化氫 (H₂O₂)','Hydrogen peroxide (pure)','compound'],
+    // 化合物 — 水與氫化物
+    ['水 (H₂O)','Water','compound'],['冰 (H₂O)','Ice','compound'],['蒸餾水 (H₂O)','Distilled water','compound'],['冰水 (H₂O)','Ice water','compound'],
+    ['氨 (NH₃)','Ammonia','compound'],['甲烷/沼氣 (CH₄)','Methane','compound'],['硫化氫 (H₂S)','Hydrogen sulfide','compound'],['氯化氫 (HCl氣體)','Hydrogen chloride (gas)','compound'],
+    ['氟化氫 (HF)','Hydrogen fluoride','compound'],['碘化氫 (HI)','Hydrogen iodide','compound'],['氫化鈣 (CaH₂)','Calcium hydride','compound'],
+    // 化合物 — 酸
+    ['硫酸 (H₂SO₄)','Sulfuric acid (pure)','compound'],['亞硫酸 (H₂SO₃)','Sulfurous acid','compound'],['硝酸 (HNO₃)','Nitric acid','compound'],['亞硝酸 (HNO₂)','Nitrous acid','compound'],
+    ['碳酸 (H₂CO₃)','Carbonic acid','compound'],['磷酸 (H₃PO₄)','Phosphoric acid','compound'],['冰醋酸 (CH₃COOH)','Glacial acetic acid (pure)','compound'],['檸檬酸 (C₆H₈O₇)','Citric acid','compound'],
+    // 化合物 — 鹼
+    ['氫氧化鈉 (NaOH)','Sodium hydroxide','compound'],['氫氧化鉀 (KOH)','Potassium hydroxide','compound'],['氫氧化鎂 (Mg(OH)₂)','Magnesium hydroxide','compound'],['氫氧化鈣/熟石灰/消石灰 (Ca(OH)₂)','Calcium hydroxide (slaked lime)','compound'],
+    ['氫氧化鋁 (Al(OH)₃)','Aluminum hydroxide','compound'],['氫氧化鋇 (Ba(OH)₂)','Barium hydroxide','compound'],['氫氧化銨 (NH₄OH)','Ammonium hydroxide','compound'],
+    // 化合物 — 鹽類
+    ['食鹽/氯化鈉 (NaCl)','Table salt (sodium chloride)','compound'],['氯化鉀 (KCl)','Potassium chloride','compound'],['氯化鈣 (CaCl₂)','Calcium chloride','compound'],['氯化鎂 (MgCl₂)','Magnesium chloride','compound'],
+    ['氯化銨 (NH₄Cl)','Ammonium chloride','compound'],['氯化鐵 (FeCl₃)','Iron(III) chloride','compound'],['氯化亞鐵 (FeCl₂)','Iron(II) chloride','compound'],['氯化銅 (CuCl₂)','Copper(II) chloride','compound'],
+    ['氯化亞銅 (CuCl)','Copper(I) chloride','compound'],['碘化銀 (AgI)','Silver iodide','compound'],['溴化鋅 (ZnBr₂)','Zinc bromide','compound'],['氟化鈣/螢石 (CaF₂)','Calcium fluoride (fluorite)','compound'],
+    ['氮化鎂 (Mg₃N₂)','Magnesium nitride','compound'],['硫化亞鐵 (FeS)','Iron(II) sulfide','compound'],['硫化汞 (HgS)','Mercury(II) sulfide','compound'],['碳酸鈣/石灰石/大理石 (CaCO₃)','Calcium carbonate (limestone/marble)','compound'],
+    ['碳酸鈉/蘇打 (Na₂CO₃)','Sodium carbonate (soda ash)','compound'],['碳酸氫鈉/小蘇打 (NaHCO₃)','Sodium bicarbonate (baking soda)','compound'],['硫酸鉀 (K₂SO₄)','Potassium sulfate','compound'],['硫酸鈉 (Na₂SO₄)','Sodium sulfate','compound'],
+    ['硫酸銅 (CuSO₄)','Copper(II) sulfate','compound'],['硫酸鋅 (ZnSO₄)','Zinc sulfate','compound'],['硫酸鋁 (Al₂(SO₄)₃)','Aluminum sulfate','compound'],['硫酸鈣/石膏 (CaSO₄)','Calcium sulfate (gypsum)','compound'],
+    ['硝酸鉀 (KNO₃)','Potassium nitrate','compound'],['硝酸鎂 (Mg(NO₃)₂)','Magnesium nitrate','compound'],['硝酸銀 (AgNO₃)','Silver nitrate','compound'],['硝酸亞鐵 (Fe(NO₃)₂)','Iron(II) nitrate','compound'],
+    ['磷酸鈣 (Ca₃(PO₄)₂)','Calcium phosphate','compound'],['醋酸銀 (CH₃COOAg)','Silver acetate','compound'],['過錳酸鉀 (KMnO₄)','Potassium permanganate','compound'],['重鉻酸鉀 (K₂Cr₂O₇)','Potassium dichromate','compound'],
+    // 化合物 — 有機物
+    ['葡萄糖 (C₆H₁₂O₆)','Glucose','compound'],['果糖 (C₆H₁₂O₆)','Fructose','compound'],['蔗糖/冰糖 (C₁₂H₂₂O₁₁)','Sucrose (rock sugar)','compound'],['澱粉 ((C₆H₁₀O₅)ₙ)','Starch','compound'],
+    ['酒精/乙醇 (C₂H₅OH)','Ethanol (pure)','compound'],['甲醇 (CH₃OH)','Methanol','compound'],['尿素 (CO(NH₂)₂)','Urea','compound'],['乙烯 (C₂H₄)','Ethylene','compound'],
+    ['乙炔 (C₂H₂)','Acetylene','compound'],['苯 (C₆H₆)','Benzene','compound'],['丙酮 (C₃H₆O)','Acetone','compound'],['乙酸乙酯 (CH₃COOC₂H₅)','Ethyl acetate','compound'],
+    ['咖啡因','Caffeine','compound'],
 
-    ['鹽水','Salt water','solution'],['糖水','Sugar water','solution'],['海水','Seawater','solution'],['空氣','Air','solution'],
-    ['汽水','Soda','solution'],['食用醋','Vinegar','solution'],['生理食鹽水','Saline solution','solution'],['黃銅','Brass','solution'],
-    ['不鏽鋼','Stainless steel','solution'],['運動飲料','Sports drink','solution'],['葡萄酒','Wine','solution'],['漂白水','Bleach solution','solution'],
-
-    ['泥漿','Mud','mixture'],['花崗岩','Granite','mixture'],['什錦沙拉','Mixed salad','mixture'],['什錦堅果','Mixed nuts','mixture'],
-    ['巧克力豆餅乾','Chocolate chip cookie','mixture'],['混凝土','Concrete','mixture'],['沙子與鐵粉混合物','Sand and iron filings','mixture'],['什錦穀片','Cereal mix','mixture'],
-    ['含果肉果汁','Orange juice with pulp','mixture'],['什錦水果罐頭','Fruit cocktail','mixture'],['味噌湯(含料)','Miso soup with solids','mixture'],['沙礫','Gravel and sand','mixture']
+    // 混合物 Mixtures — 溶液（液態）
+    ['食鹽水','Salt water','solution'],['糖水','Sugar water','solution'],['澄清石灰水','Limewater (clear)','solution'],['自來水','Tap water','solution'],
+    ['礦泉水','Mineral water','solution'],['海水','Seawater','solution'],['雙氧水','Hydrogen peroxide solution (disinfectant)','solution'],['鹽酸','Hydrochloric acid (solution)','solution'],
+    ['氨水','Ammonia solution (aqueous ammonia)','solution'],['硫酸溶液','Sulfuric acid solution','solution'],['醋','Vinegar','solution'],['酒/米酒/啤酒','Alcoholic drink (rice wine, beer)','solution'],
+    ['碘酒','Tincture of iodine','solution'],['汽水','Soda','solution'],['茶水','Tea','solution'],['咖啡','Coffee','solution'],
+    ['果汁（澄清的）','Clear juice (filtered)','solution'],['汽油','Gasoline','solution'],['柴油','Diesel','solution'],['石油','Petroleum (crude oil)','solution'],
+    // 混合物 — 溶液（氣態）
+    ['空氣','Air','solution'],['天然氣','Natural gas','solution'],['水煤氣','Water gas','solution'],
+    // 混合物 — 溶液（固態合金）
+    ['合金','Alloy (general)','solution'],['黃銅（銅鋅）','Brass (copper-zinc)','solution'],['青銅（銅錫）','Bronze (copper-tin)','solution'],['不鏽鋼（鐵鎳鉻）','Stainless steel (iron-nickel-chromium)','solution'],
+    ['鋼','Steel','solution'],['焊錫','Solder','solution'],['鋅鋁合金','Zinc-aluminum alloy','solution'],['硬幣','Coin (alloy)','solution'],
+    ['14K金','14K gold','solution'],['18K金','18K gold','solution'],
+    // 混合物 — 非溶液（不均勻）
+    ['牛奶（乳濁液）','Milk (emulsion)','mixture'],['豆漿','Soy milk','mixture'],['霧','Fog','mixture'],['煙','Smoke','mixture'],
+    ['雲','Cloud','mixture'],['泥沙水','Muddy water','mixture'],['血液','Blood','mixture'],['果汁（有果肉）','Juice with pulp','mixture'],
+    ['墨水','Ink','mixture'],['油漆','Paint','mixture'],['土壤','Soil','mixture'],['沙子','Sand','mixture'],
+    ['木材','Wood','mixture'],['空氣中的灰塵','Dust in air','mixture']
   ];
 
   const CAT_META = {
