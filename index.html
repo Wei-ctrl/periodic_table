@@ -178,14 +178,41 @@
     letter-spacing: 0.03em;
     text-align: center;
   }
+  .sym-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-top: 16px;
+  }
+  .num-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .sym-btn {
+    padding: 10px 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: background 0.08s ease, color 0.08s ease;
+  }
+  .sym-btn:active { background: var(--line-strong); color: var(--bg); }
   .quick-row {
     display: flex;
     gap: 8px;
     justify-content: center;
-    flex-wrap: wrap;
-    margin: 16px 0 4px;
+    margin: 8px 0 4px;
   }
   .quick-btn {
+    flex: 1;
     padding: 8px 16px;
     border-radius: 10px;
     border: 1px solid var(--line);
@@ -677,12 +704,52 @@
       </div>
       <div class="classify-en" id="formulaEn"></div>
       <div class="reveal" id="revealF"></div>
-      <input class="answer-input formula-input" id="formulaInput" type="text" inputmode="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例如 NaOH" />
+      <input class="answer-input formula-input" id="formulaInput" type="text" inputmode="none" readonly autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例如 NaOH" />
+
+      <div class="sym-grid" id="symGrid">
+        <button class="sym-btn" data-ins="Ag">Ag</button>
+        <button class="sym-btn" data-ins="Al">Al</button>
+        <button class="sym-btn" data-ins="Ba">Ba</button>
+        <button class="sym-btn" data-ins="Br">Br</button>
+        <button class="sym-btn" data-ins="C">C</button>
+        <button class="sym-btn" data-ins="Ca">Ca</button>
+        <button class="sym-btn" data-ins="Cl">Cl</button>
+        <button class="sym-btn" data-ins="Cr">Cr</button>
+        <button class="sym-btn" data-ins="Cu">Cu</button>
+        <button class="sym-btn" data-ins="F">F</button>
+        <button class="sym-btn" data-ins="Fe">Fe</button>
+        <button class="sym-btn" data-ins="H">H</button>
+        <button class="sym-btn" data-ins="Hg">Hg</button>
+        <button class="sym-btn" data-ins="I">I</button>
+        <button class="sym-btn" data-ins="K">K</button>
+        <button class="sym-btn" data-ins="Mg">Mg</button>
+        <button class="sym-btn" data-ins="Mn">Mn</button>
+        <button class="sym-btn" data-ins="N">N</button>
+        <button class="sym-btn" data-ins="Na">Na</button>
+        <button class="sym-btn" data-ins="O">O</button>
+        <button class="sym-btn" data-ins="P">P</button>
+        <button class="sym-btn" data-ins="S">S</button>
+        <button class="sym-btn" data-ins="Si">Si</button>
+        <button class="sym-btn" data-ins="Zn">Zn</button>
+      </div>
+
+      <div class="num-grid" id="numGrid">
+        <button class="sym-btn" data-ins="1">1</button>
+        <button class="sym-btn" data-ins="2">2</button>
+        <button class="sym-btn" data-ins="3">3</button>
+        <button class="sym-btn" data-ins="(">(</button>
+        <button class="sym-btn" data-ins="4">4</button>
+        <button class="sym-btn" data-ins="5">5</button>
+        <button class="sym-btn" data-ins="6">6</button>
+        <button class="sym-btn" data-ins=")">)</button>
+        <button class="sym-btn" data-ins="7">7</button>
+        <button class="sym-btn" data-ins="8">8</button>
+        <button class="sym-btn" data-ins="9">9</button>
+        <button class="sym-btn" data-ins="0">0</button>
+      </div>
 
       <div class="quick-row">
-        <button class="quick-btn" data-ins="(">(</button>
-        <button class="quick-btn" data-ins=")">)</button>
-        <button class="quick-btn" id="formulaBackspace" aria-label="刪除">⌫</button>
+        <button class="quick-btn" id="formulaBackspace" aria-label="刪除">⌫ 刪除</button>
         <button class="quick-btn" id="formulaClear">清除</button>
       </div>
 
@@ -1519,7 +1586,6 @@
     formulaName.textContent = currentFormula[0];
     formulaEn.textContent = currentFormula[3];
     formulaInput.value = '';
-    formulaInput.readOnly = false;
     clearFeedbackF();
     formulaAnswered = false;
     formulaInput.focus();
@@ -1528,7 +1594,6 @@
   function resetFormulaCurrent() {
     if (formulaAdvanceTimer) { clearTimeout(formulaAdvanceTimer); formulaAdvanceTimer = null; }
     formulaInput.value = '';
-    formulaInput.readOnly = false;
     clearFeedbackF();
     formulaAnswered = false;
     formulaInput.focus();
@@ -1544,7 +1609,6 @@
     }
 
     formulaAnswered = true;
-    formulaInput.readOnly = true;
     statsF.answered++;
 
     if (normalizeFormula(raw) === normalizeFormula(currentFormula[1])) {
@@ -1582,7 +1646,7 @@
     startFormulaSession(pool);
   });
 
-  document.getElementById('screenFormulaQuiz').querySelectorAll('.quick-btn[data-ins]').forEach(btn => {
+  document.getElementById('screenFormulaQuiz').querySelectorAll('[data-ins]').forEach(btn => {
     btn.addEventListener('click', () => {
       if (formulaAnswered) return;
       formulaInput.value += btn.dataset.ins;

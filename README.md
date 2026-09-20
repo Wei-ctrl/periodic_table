@@ -36,7 +36,7 @@ Toggle which categories to include with the colored chips (at least one must sta
 
 ### 化學式練習 (chemical formula practice)
 
-An 84-item bank of compounds grouped into six chip-filterable categories — 氧化物 (oxides), 氫化物 (hydrides/water), 酸 (acids), 鹼 (bases), 鹽類 (salts), 有機物 (organics). Shown a Chinese name (e.g. 二氧化氮), type the chemical formula (e.g. `NO2`) into the text field — matching is case-insensitive and ignores whitespace, so `no2` also works. Quick-insert buttons handle `(` and `)` for formulas like `Ca(OH)2` or `Fe(NO3)2` without switching keyboards, plus a backspace and a 清除 (clear) button that also resets a wrong answer for another attempt. Press Enter to submit or advance.
+An 84-item bank of compounds grouped into six chip-filterable categories — 氧化物 (oxides), 氫化物 (hydrides/water), 酸 (acids), 鹼 (bases), 鹽類 (salts), 有機物 (organics). Shown a Chinese name (e.g. 二氧化氮), build the chemical formula (e.g. `NO2`) with an on-screen keypad — no device keyboard needed. The keypad covers all 24 element symbols that appear across the bank (Ag, Al, Ba, Br, C, Ca, Cl, Cr, Cu, F, Fe, H, Hg, I, K, Mg, Mn, N, Na, O, P, S, Si, Zn) plus digits 0–9 and `(` `)` for formulas like `Ca(OH)2` or `Fe(NO3)2`. Matching is case-insensitive and ignores whitespace. 刪除 removes the last character; 清除 clears the field and also resets a wrong answer for another attempt. Press Enter to submit or advance.
 
 ## Tech
 
