@@ -32,6 +32,8 @@ A 185-item bank covering the standard 國中 curriculum, shown with both their C
 
 The set deliberately includes the classic 純物質 vs 混合物 "trap pairs" that sound alike but aren't — 過氧化氫 (compound) vs 雙氧水 (solution), 氯化氫 (compound) vs 鹽酸 (solution), 24K金 (element) vs 14K金 (solution alloy), 蒸餾水 (compound) vs 自來水 (solution), and more.
 
+Names are shown without their chemical formula (no "二氧化氮 (NO₂)" — just "二氧化氮") to keep the difficulty on recognizing the Chinese term itself, rather than pattern-matching a formula that gives the category away.
+
 Toggle which categories to include with the colored chips (at least one must stay selected), then tap the matching category button for each item — or press **1**–**4** on a keyboard. A correct answer auto-advances; a wrong one highlights the right category and waits for **下一題**.
 
 ### 化合價練習 (ion charge / valence practice)
