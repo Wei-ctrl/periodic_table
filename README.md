@@ -23,7 +23,7 @@ Answers are entered on an on-screen numpad. A correct answer briefly reveals the
 
 ### 物質分類練習 (substance classification practice)
 
-A 185-item bank covering the standard 國中 curriculum, shown with both their Chinese name and English translation, drilled against four categories:
+A 185-item bank covering the standard 國中 curriculum, shown by Chinese name only (no formula, no English hint), drilled against four categories:
 
 - **元素** (element, 49 items) — gases (氫氣, 氦, 氯氣…), liquids (溴, 汞), solid nonmetals (碘, 矽, 鑽石…), and metals (鈉, 鐵, 24K金…)
 - **化合物** (compound, 89 items) — oxides, acids, bases, salts, and organic compounds (水, 二氧化碳, 硫酸, 氫氧化鈉, 食鹽, 葡萄糖…)
