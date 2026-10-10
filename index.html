@@ -87,26 +87,6 @@
   .sub-header > :first-child, .sub-header > :last-child { flex: 0 0 64px; }
   .sub-header > :last-child { display: flex; justify-content: flex-end; }
 
-  .lang-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 10px;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-faint);
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  .lang-btn span.on { color: var(--text); }
-  .lang-btn .sep { color: var(--line); font-weight: 400; }
-  .lang-btn:active { border-color: var(--line-strong); }
-
   /* ---- mode tabs ---- */
   .mode-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
   .mode-tabs.hidden { display: none; }
@@ -620,11 +600,7 @@
         返回
       </button>
       <span class="sub-title" id="quizLabel"></span>
-      <span>
-        <button class="lang-btn" id="langBtn" aria-label="切換中文 / 英文符號" title="切換中文 / 英文符號">
-          <span id="langZh" class="on">中</span><span class="sep">/</span><span id="langEn">EN</span>
-        </button>
-      </span>
+      <span></span>
     </div>
     <div class="card">
       <div class="name-row">
@@ -776,7 +752,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
         </button>
       </div>
-      <div class="classify-en" id="formulaEn"></div>
       <div class="reveal" id="revealF"></div>
       <input class="answer-input formula-input" id="formulaInput" type="text" inputmode="none" readonly autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例如 NaOH" />
 
@@ -1117,8 +1092,6 @@
   let currentPool = ELEMENTS;
   let currentEl = null;
   let currentZ = null;
-  let showEnglish = false;
-  try { showEnglish = localStorage.getItem('lang') === 'en'; } catch (_) {}
   let answered = false;
   let advanceTimer = null;
   let lastIndex = -1;
@@ -1140,9 +1113,6 @@
   const statAccuracy = document.getElementById('statAccuracy');
   const quizLabel = document.getElementById('quizLabel');
   const speakBtn = document.getElementById('speakBtn');
-  const langBtn = document.getElementById('langBtn');
-  const langZh = document.getElementById('langZh');
-  const langEn = document.getElementById('langEn');
   const modeTabs = document.getElementById('modeTabs');
   const catChipRow = document.getElementById('catChipRow');
   const classifyStartBtn = document.getElementById('classifyStartBtn');
@@ -1158,7 +1128,6 @@
   const fCatChipRow = document.getElementById('fCatChipRow');
   const formulaStartBtn = document.getElementById('formulaStartBtn');
   const formulaName = document.getElementById('formulaName');
-  const formulaEn = document.getElementById('formulaEn');
   const revealF = document.getElementById('revealF');
   const formulaInput = document.getElementById('formulaInput');
   const submitBtnF = document.getElementById('submitBtnF');
@@ -1304,36 +1273,17 @@
   buildTable();
   renderSelection();
 
-  // ---- 中文 / English symbol toggle ----
   function renderName() {
     if (!currentEl) return;
-    nameDisplay.textContent = showEnglish ? currentEl[3] : currentEl[0];
+    nameDisplay.textContent = currentEl[0];
   }
-
-  function renderLangBtn() {
-    langZh.classList.toggle('on', !showEnglish);
-    langEn.classList.toggle('on', showEnglish);
-  }
-
-  function toggleLang() {
-    showEnglish = !showEnglish;
-    try { localStorage.setItem('lang', showEnglish ? 'en' : 'zh'); } catch (_) {}
-    renderLangBtn();
-    renderName();
-  }
-  renderLangBtn();
 
   // ---- pronunciation (Web Speech API) ----
   const synth = window.speechSynthesis;
   if (!synth) speakBtn.hidden = true;
 
-  function pickVoice(lang) {
+  function pickVoice() {
     const voices = synth.getVoices();
-    if (lang === 'en') {
-      return voices.find(v => /^en[-_]US/i.test(v.lang))
-          || voices.find(v => /^en/i.test(v.lang))
-          || null;
-    }
     return voices.find(v => /^zh[-_]TW/i.test(v.lang))
         || voices.find(v => /^zh[-_]HK/i.test(v.lang))
         || voices.find(v => /^zh/i.test(v.lang))
@@ -1343,10 +1293,10 @@
   function speakName() {
     if (!synth || !currentEl) return;
     synth.cancel();
-    const u = new SpeechSynthesisUtterance(showEnglish ? currentEl[4] : currentEl[0]);
-    u.lang = showEnglish ? 'en-US' : 'zh-TW';
+    const u = new SpeechSynthesisUtterance(currentEl[0]);
+    u.lang = 'zh-TW';
     u.rate = 0.85;
-    const voice = pickVoice(showEnglish ? 'en' : 'zh');
+    const voice = pickVoice();
     if (voice) u.voice = voice;
     u.onstart = () => speakBtn.classList.add('speaking');
     u.onend = u.onerror = () => speakBtn.classList.remove('speaking');
@@ -1535,7 +1485,7 @@
     const u = new SpeechSynthesisUtterance(currentSub[0].replace(/[（(].*?[)）]/g, ''));
     u.lang = 'zh-TW';
     u.rate = 0.85;
-    const voice = pickVoice('zh');
+    const voice = pickVoice();
     if (voice) u.voice = voice;
     u.onstart = () => speakBtnC.classList.add('speaking');
     u.onend = u.onerror = () => speakBtnC.classList.remove('speaking');
@@ -1682,7 +1632,7 @@
     const u = new SpeechSynthesisUtterance(currentValence[0]);
     u.lang = 'zh-TW';
     u.rate = 0.85;
-    const voice = pickVoice('zh');
+    const voice = pickVoice();
     if (voice) u.voice = voice;
     u.onstart = () => speakBtnV.classList.add('speaking');
     u.onend = u.onerror = () => speakBtnV.classList.remove('speaking');
@@ -1702,7 +1652,7 @@
     if (valenceAdvanceTimer) { clearTimeout(valenceAdvanceTimer); valenceAdvanceTimer = null; }
     currentValence = pickValence();
     valenceName.textContent = currentValence[0];
-    valenceEn.textContent = currentValence[1] + ' · ' + currentValence[3];
+    valenceEn.textContent = currentValence[1];
     valenceInput.value = '';
     clearFeedbackV();
     valenceAnswered = false;
@@ -1807,7 +1757,6 @@
   submitBtn.addEventListener('click', submitAnswer);
   nextBtn.addEventListener('click', nextQuestion);
   speakBtn.addEventListener('click', speakName);
-  langBtn.addEventListener('click', toggleLang);
 
   // ---- formula practice ----
   let selectedFCats = new Set(FORMULA_CAT_ORDER);
@@ -1882,7 +1831,7 @@
     const u = new SpeechSynthesisUtterance(currentFormula[0].replace(/[（(].*?[)）]/g, ''));
     u.lang = 'zh-TW';
     u.rate = 0.85;
-    const voice = pickVoice('zh');
+    const voice = pickVoice();
     if (voice) u.voice = voice;
     u.onstart = () => speakBtnF.classList.add('speaking');
     u.onend = u.onerror = () => speakBtnF.classList.remove('speaking');
@@ -1902,7 +1851,6 @@
     if (formulaAdvanceTimer) { clearTimeout(formulaAdvanceTimer); formulaAdvanceTimer = null; }
     currentFormula = pickFormula();
     formulaName.textContent = currentFormula[0];
-    formulaEn.textContent = currentFormula[3];
     formulaInput.value = '';
     clearFeedbackF();
     formulaAnswered = false;

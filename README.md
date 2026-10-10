@@ -17,7 +17,7 @@ The start screen is a Taiwan-style periodic table (CAS group labels 1A–8A / 1B
 - a period number (**1**–**7**) or the **鑭系** / **錒系** label to toggle the whole row
 - **全選** / **清除** for everything or nothing
 
-Your selection is remembered between visits. Press **開始練習** and answer with the atomic number for each element shown. A **中 / EN** toggle switches the prompt between the Chinese name and the element symbol, and the speaker button reads the name aloud (Mandarin or English) using the browser's speech synthesis.
+Your selection is remembered between visits. Press **開始練習** and answer with the atomic number for each element shown. The prompt is the Chinese name only, and the speaker button reads it aloud in Mandarin using the browser's speech synthesis. Every mode is Chinese-only: no English subtitles or language toggle.
 
 Answers are entered on an on-screen numpad. A correct answer briefly reveals the atomic number and auto-advances to the next question; an incorrect one shows the right answer and waits for you to retry or skip ahead.
 
